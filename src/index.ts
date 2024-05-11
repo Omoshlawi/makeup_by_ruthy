@@ -17,7 +17,7 @@ const startServer = async () => {
   await configureExpressApp(app);
   const port = configuration.port ?? 0;
   httpServer.listen(port, () => {
-    logger.info("Aapp listening in port port: " + port);
+    logger.info("App listening in port port: " + port + "....");
   });
 };
 

@@ -21,6 +21,6 @@ model User {
 
 enum Gender {
   Male
-  Femail
+  Female
   Unknown
 }

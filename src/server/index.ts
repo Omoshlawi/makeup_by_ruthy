@@ -4,6 +4,8 @@ import morgan from "morgan";
 import { MEDIA_ROOT, configuration } from "../utils";
 import { handleErrors } from "../middlewares";
 import logger from "../shared/logger";
+import { default as userRouter } from "@/features/users/routes";
+import { default as authRouter } from "@/features/auth/routes";
 
 /**
  * Handle database connection logic
@@ -19,7 +21,6 @@ export const dbConnection = async () => {
 
 export const configureExpressApp = async (app: Application) => {
   // --------------------middlewares---------------------------
-  console.log(configuration);
 
   if (app.get("env") === "development") {
     app.use(morgan("tiny"));
@@ -38,6 +39,8 @@ export const configureExpressApp = async (app: Application) => {
 
   //------------------- routes --------------------------------
   // Add routes here
+  app.use("/users", userRouter);
+  app.use("/auth", authRouter);
 
   //-------------------end routes-----------------------------
 
