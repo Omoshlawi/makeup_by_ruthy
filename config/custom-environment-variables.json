@@ -1,0 +1,5 @@
+{
+  "port": "PORT",
+  "jwt": "JWT_TOKEN",
+  "db": "DATABASE_URL"
+}

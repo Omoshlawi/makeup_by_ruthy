@@ -1,0 +1,8 @@
+{
+  "name": "The hive auth services",
+  "port": null,
+  "db": "",
+  "mapquest": "https://www.mapquestapi.com/",
+  "openroute": "https://api.openrouteservice.org/",
+  "jwt": "JWT_TOKEN"
+}

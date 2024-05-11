@@ -1,0 +1,26 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "mysql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id          String   @id @default(uuid())
+  name        String?
+  email       String   @unique
+  username    String   @unique
+  phoneNumber String   @unique
+  gender      Gender   @default(Unknown)
+  password    String
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}
+
+enum Gender {
+  Male
+  Femail
+  Unknown
+}
