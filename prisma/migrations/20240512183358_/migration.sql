@@ -1,14 +1,34 @@
 -- CreateTable
+CREATE TABLE `User` (
+    `id` VARCHAR(191) NOT NULL,
+    `username` VARCHAR(191) NOT NULL,
+    `profileUpdated` BOOLEAN NOT NULL DEFAULT false,
+    `isActive` BOOLEAN NOT NULL DEFAULT true,
+    `password` VARCHAR(191) NOT NULL,
+    `createdAt` DATETIME(3) NOT NULL DEFAULT CURRENT_TIMESTAMP(3),
+    `updatedAt` DATETIME(3) NOT NULL,
+
+    UNIQUE INDEX `User_username_key`(`username`),
+    PRIMARY KEY (`id`)
+) DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
+
+-- CreateTable
 CREATE TABLE `Profile` (
     `id` VARCHAR(191) NOT NULL,
+    `name` VARCHAR(191) NULL,
     `userId` VARCHAR(191) NOT NULL,
     `bio` VARCHAR(191) NULL,
     `avatarUrl` VARCHAR(191) NULL,
+    `phoneNumber` VARCHAR(191) NOT NULL,
+    `email` VARCHAR(191) NOT NULL,
+    `gender` ENUM('Male', 'Female', 'Unknown') NOT NULL DEFAULT 'Unknown',
     `socialLinks` JSON NOT NULL,
     `createdAt` DATETIME(3) NOT NULL DEFAULT CURRENT_TIMESTAMP(3),
     `updatedAt` DATETIME(3) NOT NULL,
 
     UNIQUE INDEX `Profile_userId_key`(`userId`),
+    UNIQUE INDEX `Profile_phoneNumber_key`(`phoneNumber`),
+    UNIQUE INDEX `Profile_email_key`(`email`),
     PRIMARY KEY (`id`)
 ) DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
 
