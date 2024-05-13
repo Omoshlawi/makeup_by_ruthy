@@ -12,6 +12,7 @@ model User {
   username       String   @unique
   profileUpdated Boolean  @default(false)
   isActive       Boolean  @default(true)
+  isAdmin        Boolean  @default(false)
   password       String
   createdAt      DateTime @default(now())
   updatedAt      DateTime @updatedAt
@@ -19,13 +20,13 @@ model User {
 }
 
 model Profile {
-  id   String  @id @default(uuid())
-  name String?
-  userId      String  @unique
+  id          String      @id @default(uuid())
+  name        String?
+  userId      String      @unique
   bio         String?
   avatarUrl   String?
-  phoneNumber String  @unique
-  email       String  @unique
+  phoneNumber String      @unique
+  email       String      @unique
   gender      Gender      @default(Unknown)
   socialLinks Json? // Example: {"linkedin": "url", "twitter": "url", ...}
   user        User        @relation(fields: [userId], references: [id], onDelete: Cascade)
@@ -35,84 +36,106 @@ model Profile {
   updatedAt   DateTime    @updatedAt
 }
 
+model Topic {
+  id                     String                  @id @default(uuid())
+  name                   String                  @unique
+  overview               String?                 @db.Text
+  thumbnail              String
+  createdAt              DateTime                @default(now())
+  updatedAt              DateTime                @updatedAt
+  courseTags             CourseTopic[]
+  studentAreasOfInterest StudentAreaOfInterest[]
+  instructorSpecialities InstructorSpeciality[]
+}
+
 model Student {
-  id          String       @id @default(uuid())
-  profileId   String       @unique
-  profile     Profile      @relation(fields: [profileId], onDelete: Cascade, references: [id])
-  createdAt   DateTime     @default(now())
-  updatedAt   DateTime     @updatedAt
-  enrollments Enrollment[]
-  Review      Review[]
+  id              String                  @id @default(uuid())
+  profileId       String                  @unique
+  profile         Profile                 @relation(fields: [profileId], onDelete: Cascade, references: [id])
+  createdAt       DateTime                @default(now())
+  updatedAt       DateTime                @updatedAt
+  enrollments     Enrollment[]
+  reviews         Review[]
+  areasOfInterest StudentAreaOfInterest[]
+}
+
+model StudentAreaOfInterest {
+  id        String   @id @default(uuid())
+  studentId String
+  topicId   String
+  student   Student  @relation(fields: [studentId], onDelete: Cascade, references: [id])
+  topic     Topic    @relation(fields: [topicId], onDelete: Cascade, references: [id])
+  createdAt DateTime @default(now())
+
+  @@unique([studentId, topicId])
 }
 
 model Instructor {
-  id        String   @id @default(uuid())
-  profileId String   @unique
-  profile   Profile  @relation(fields: [profileId], onDelete: Cascade, references: [id])
-  courses   Course[]
+  id                String                 @id @default(uuid())
+  profileId         String                 @unique
+  profile           Profile                @relation(fields: [profileId], onDelete: Cascade, references: [id])
+  courses           Course[]
+  yearsOfExpirience Int
   // availability Json // Example: {"monday": ["9AM-11AM", "1PM-3PM"], ...}
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  createdAt         DateTime               @default(now())
+  updatedAt         DateTime               @updatedAt
+  specialities      InstructorSpeciality[]
 }
 
-model CourseCategory {
-  id        String   @id @default(uuid())
-  name      String
-  courses   Course[]
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-}
+model InstructorSpeciality {
+  id           String     @id @default(uuid())
+  instructorId String
+  topicId      String
+  instructor   Instructor @relation(fields: [instructorId], onDelete: Cascade, references: [id])
+  topic        Topic      @relation(fields: [topicId], onDelete: Cascade, references: [id])
+  createdAt    DateTime   @default(now())
 
-model Tag {
-  id         String      @id @default(uuid())
-  name       String      @unique
-  createdAt  DateTime    @default(now())
-  updatedAt  DateTime    @updatedAt
-  courseTags CourseTag[]
+  @@unique([instructorId, topicId])
 }
 
 model Course {
-  id             String         @id @default(uuid())
+  id             String        @id @default(uuid())
   title          String
-  description    String?        @db.Text
+  overview       String?       @db.Text
+  tags           String?       @db.Text // Comma seperated tags
   categoryId     String
-  coverImage     String
+  thumbnail      String
+  previewVideo   String
   instructorId   String
   language       String
   timeToComplete String
   level          Level
-  createdAt      DateTime       @default(now())
-  updatedAt      DateTime       @updatedAt
-  category       CourseCategory @relation(fields: [categoryId], onDelete: Cascade, references: [id])
-  instructor     Instructor     @relation(fields: [instructorId], onDelete: Cascade, references: [id])
+  createdAt      DateTime      @default(now())
+  updatedAt      DateTime      @updatedAt
+  instructor     Instructor    @relation(fields: [instructorId], onDelete: Cascade, references: [id])
   enrollments    Enrollment[]
   modules        Module[]
-  tags           CourseTag[]
+  topics         CourseTopic[]
   reviews        Review[]
 }
 
-model CourseTag {
-  courseId String
-  course   Course   @relation(fields: [courseId], references: [id])
-  tagId    String
-  tag      Tag      @relation(fields: [tagId], references: [id])
-  taggedAt DateTime @default(now())
+model CourseTopic {
+  id        String   @id @default(uuid())
+  courseId  String
+  course    Course   @relation(fields: [courseId], references: [id])
+  topicId   String
+  topic     Topic    @relation(fields: [topicId], onDelete: Cascade, references: [id])
+  createdAt DateTime @default(now())
 
-  @@id([courseId, tagId])
+  @@unique([courseId, topicId])
 }
 
 model Module {
-  id          String    @id @default(uuid())
-  courseId    String
-  title       String
-  description String?   @db.Text
-  course      Course    @relation(fields: [courseId], onDelete: Cascade, references: [id])
-  createdAt   DateTime  @default(now())
-  updatedAt   DateTime  @updatedAt
-  content     Content[]
+  id        String    @id @default(uuid())
+  courseId  String
+  title     String
+  overview  String?   @db.Text
+  course    Course    @relation(fields: [courseId], onDelete: Cascade, references: [id])
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+  content   Content[]
 }
 
-// TODO Handle Questions and answers
 model Content {
   id        String      @id @default(uuid())
   moduleId  String

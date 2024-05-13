@@ -14,7 +14,10 @@ const authenticate = async (
     return res.status(401).json({ detail: "Unauthorized - Token missing" });
   try {
     const { id }: any = verify(token, configuration.jwt as string);
-    const user = await UserModel.findUnique({ where: { id } });
+    const user = await UserModel.findUnique({
+      where: { id },
+      // include: { profile: true },
+    });
     if (!user) throw new Error("");
     (req as UserRequest).user = user;
     return next();

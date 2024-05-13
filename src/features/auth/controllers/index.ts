@@ -29,6 +29,7 @@ export const register = async (
     if (!isEmpty(errors)) throw { status: 400, errors };
 
     const user = await UserModel.create({
+      include: { profile: true },
       data: {
         username,
         password: await hashPassword(password),
@@ -61,6 +62,7 @@ export const login = async (
       throw new APIException(400, validation.error.format());
     const { password, username } = validation.data;
     const users = await UserModel.findMany({
+      include: { profile: true },
       where: {
         OR: [
           { username },
