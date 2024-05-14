@@ -37,9 +37,7 @@ export const addTopic = async (
   next: NextFunction
 ) => {
   try {
-    const validation = await topicValidationSchema.safeParseAsync({
-      where: { id: req.params.id },
-    });
+    const validation = await topicValidationSchema.safeParseAsync(req.body);
     if (!validation.success)
       throw new APIException(400, validation.error.format());
     const topic = await TopicsMddel.create({ data: validation.data });
@@ -54,9 +52,7 @@ export const updateTopic = async (
   next: NextFunction
 ) => {
   try {
-    const validation = await topicValidationSchema.safeParseAsync({
-      where: { id: req.params.id },
-    });
+    const validation = await topicValidationSchema.safeParseAsync(req.body);
     if (!validation.success)
       throw new APIException(400, validation.error.format());
     const topic = await TopicsMddel.update({
