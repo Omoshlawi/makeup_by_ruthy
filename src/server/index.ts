@@ -35,7 +35,7 @@ export const configureExpressApp = async (app: Application) => {
   // Make sure to use these body parsers so Auth.js can receive data from the client
   app.use(express.json());
   app.use(express.urlencoded({ extended: true }));
-
+  
   // ------------------End middlewares------------------------
 
   //------------------- routes --------------------------------

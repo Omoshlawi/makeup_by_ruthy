@@ -7,6 +7,7 @@ import { configuration, MEDIA_ROOT } from "@/utils";
 import slugify from "slugify";
 import { isEmpty, zip } from "lodash";
 import sharp from "sharp";
+import { addRollBackTaskToQueue } from "@/shared/tasks";
 
 const filter = (
   req: Request,
@@ -86,6 +87,18 @@ const saveImages = async (
   }));
 };
 
+const deleteFileAsync = (filePath: string) =>
+  new Promise<void>((resolve, reject) => {
+    fs.unlink(filePath, (err) => {
+      if (err) return reject(err);
+      return resolve();
+    });
+  });
+
+const rollBackFileUploads = async (absolutePaths: string[]) => {
+  await Promise.all(absolutePaths.map(deleteFileAsync));
+};
+
 const imageUploader = {
   postImageUpload: (uploadPath?: string) => {
     // Ensure folder exist
@@ -98,10 +111,15 @@ const imageUploader = {
             if (req.file) {
               const uploaded = await saveImages([req.file], uploadPath ?? "");
               req.body[fieldName] = uploaded[0].relative;
+              addRollBackTaskToQueue(req, async () => {
+                await rollBackFileUploads([uploaded[0].absolute]);
+                return `[+]Files ${uploaded[0].absolute} rolled back suceesfully`;
+              });
             } else {
               // TODO To support update where image is unmordified can validate path is same as one in db
               req.body[fieldName] = undefined;
             }
+
             return next();
           } catch (error) {
             return next(error);

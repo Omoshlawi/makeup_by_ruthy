@@ -17,13 +17,13 @@ export const ERROR_CODES = Object.freeze({
 
 export const handlePrismaErrors = (e: any) => {
   if (e instanceof Prisma.PrismaClientKnownRequestError) {
-    console.log(
-      "--------------------------------------->",
-      e.code,
-      e.message,
-      e.meta,
-      e.name
-    );
+    // console.log(
+    //   "--------------------------------------->",
+    //   e.code,
+    //   // e.message,
+    //   e.meta,
+    //   e.name
+    // );
 
     if (e.code === ERROR_CODES.NOT_FOUND) {
       return { status: 404, errors: { detail: e.message } };

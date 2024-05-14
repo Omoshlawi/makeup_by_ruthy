@@ -1,14 +1,16 @@
 import { handlePrismaErrors } from "@/db";
 import logger from "@/shared/logger";
+import { executeRollBackTasks } from "@/shared/tasks";
 import { NextFunction, Request, Response } from "express";
 import { entries } from "lodash";
 
-export function handleErrors(
+export async function handleErrors(
   error: any,
   req: Request,
   res: Response,
   next: NextFunction
 ) {
+  await executeRollBackTasks(req);
   if (error.status) {
     return res.status(error.status).json(error.errors);
   }
