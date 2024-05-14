@@ -6,6 +6,7 @@ import { handleErrors } from "../middlewares";
 import logger from "../shared/logger";
 import { default as userRouter } from "@/features/users/routes";
 import { default as authRouter } from "@/features/auth/routes";
+import coursesRouter from "@/features/courses/routes";
 
 /**
  * Handle database connection logic
@@ -41,6 +42,7 @@ export const configureExpressApp = async (app: Application) => {
   // Add routes here
   app.use("/users", userRouter);
   app.use("/auth", authRouter);
+  app.use("/courses", coursesRouter);
 
   //-------------------end routes-----------------------------
 

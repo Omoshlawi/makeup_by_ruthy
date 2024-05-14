@@ -1,3 +1,4 @@
+import { handlePrismaErrors } from "@/db";
 import logger from "@/shared/logger";
 import { NextFunction, Request, Response } from "express";
 import { entries } from "lodash";
@@ -11,6 +12,8 @@ export function handleErrors(
   if (error.status) {
     return res.status(error.status).json(error.errors);
   }
+  const errors = handlePrismaErrors(error);
+  if (errors) return res.status(errors.status).json(errors.errors);
   logger.error("Error handler middleware: " + error.message);
   return res.status(500).json({ detail: "Internal Server Error" });
 }

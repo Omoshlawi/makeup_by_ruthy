@@ -69,6 +69,7 @@ export const login = async (
           { profile: { email: username } },
           { profile: { phoneNumber: username } },
         ],
+        isActive: true,
       },
     });
     const passwordChecks = await Promise.all(
