@@ -35,7 +35,7 @@ export const configureExpressApp = async (app: Application) => {
   // Make sure to use these body parsers so Auth.js can receive data from the client
   app.use(express.json());
   app.use(express.urlencoded({ extended: true }));
-  
+
   // ------------------End middlewares------------------------
 
   //------------------- routes --------------------------------
@@ -48,5 +48,8 @@ export const configureExpressApp = async (app: Application) => {
 
   //---------------- error handler -----------------------
   app.use(handleErrors);
+  app.use((req, res) => {
+    res.status(404).json({ detail: "Not Found" });
+  });
   //---------------- end error handler -----------------------
 };

@@ -20,6 +20,14 @@ router.post(
   addTopic
 );
 router.get("/:id", [validateUUIDPathParam("id")], getTopic);
-router.put("/:id", [validateUUIDPathParam("id")], updateTopic);
+router.put(
+  "/:id",
+  [
+    validateUUIDPathParam("id"),
+    imageUploader.memoryImage().single("thumbnail"),
+    imageUploader.postImageUpload("courses/topics").single("thumbnail"),
+  ],
+  updateTopic
+);
 router.delete("/:id", [validateUUIDPathParam("id")], deleteTopic);
 export default router;

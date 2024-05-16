@@ -116,8 +116,10 @@ const imageUploader = {
                 return `[+]Files ${uploaded[0].absolute} rolled back suceesfully`;
               });
             } else {
-              // TODO To support update where image is unmordified can validate path is same as one in db
-              req.body[fieldName] = undefined;
+              // For update operations acceppt path of the image for non updated files only require files hence set to udefined
+              // TODO Can perfome image path validation in the controller
+              if (["PUT", "PATCH"].includes(req.method)) {
+              } else req.body[fieldName] = undefined;
             }
 
             return next();
