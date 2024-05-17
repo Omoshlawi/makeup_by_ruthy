@@ -1,8 +1,9 @@
 import { NextFunction, Request, Response } from "express";
-import { ProfileSchema } from "../schema";
+import { accountSetupSchema, ProfileSchema } from "../schema";
 import { APIException } from "@/shared/exceprions";
 import { UserModel } from "../models";
 import { isEmpty } from "lodash";
+import { User } from "@prisma/client";
 
 export const updateProfile = async (
   req: Request,
@@ -54,7 +55,14 @@ export const viewProfile = async (
     return res.json(
       await UserModel.findUnique({
         where: { id: (req as any).user.id },
-        include: { profile: { include: { instructor: true, student: true } } },
+        include: {
+          profile: {
+            include: {
+              instructor: { include: { specialities: true } },
+              student: { include: { areasOfInterest: true } },
+            },
+          },
+        },
       })
     );
   } catch (error) {
@@ -70,6 +78,138 @@ export const getUsers = async (
   try {
     return res.json({ results: await UserModel.findMany() });
   } catch (error) {
-    next(error);
+    return next(error);
+  }
+};
+
+export const setUpAccount = async (
+  req: Request,
+  res: Response,
+  next: NextFunction
+) => {
+  try {
+
+    const validatopn = await accountSetupSchema.safeParseAsync(req.body);
+    if (!validatopn.success)
+      throw new APIException(400, validatopn.error.format());
+    const user: User = (req as any).user;
+    const {
+      username,
+      email,
+      phoneNumber,
+      bio,
+      areasOfInterest,
+      avatarUrl,
+      experience,
+      gender,
+      name,
+      skillLevel,
+      specialities,
+      userType,
+      facebook,
+      instagram,
+      linkedin,
+      tiktok,
+      twitter,
+      youtube,
+    } = validatopn.data;
+    const errors: any = {};
+
+    if (
+      await UserModel.findFirst({ where: { username, id: { not: user.id } } })
+    )
+      errors["username"] = { _errors: ["Username taken"] };
+    if (
+      await UserModel.findFirst({
+        where: { profile: { email }, id: { not: user.id } },
+      })
+    )
+      errors["email"] = { _errors: ["Email taken"] };
+    if (
+      await UserModel.findFirst({
+        where: { profile: { phoneNumber }, id: { not: user.id } },
+      })
+    )
+      errors["phoneNumber"] = { _errors: ["Phone number taken"] };
+    if (!isEmpty(errors)) throw new APIException(400, errors);
+    const updated = await UserModel.update({
+      where: { id: user.id },
+      include: { profile: { include: { instructor: true, student: true } } },
+      data: {
+        profileUpdated: true,
+        username,
+        profile: {
+          update: {
+            avatarUrl,
+            bio,
+            email,
+            phoneNumber,
+            name,
+            socialLinks: {
+              facebook,
+              instagram,
+              linkedin,
+              tiktok,
+              twitter,
+              youtube,
+            } as any,
+            gender,
+            instructor:
+              userType === "Instructor"
+                ? {
+                    upsert: {
+                      create: {
+                        experience: experience!,
+                        specialities: {
+                          createMany: {
+                            skipDuplicates: true,
+                            data: specialities.map((s) => ({ topicId: s })),
+                          },
+                        },
+                      },
+                      update: {
+                        experience,
+                        specialities: {
+                          createMany: {
+                            skipDuplicates: true,
+                            data: specialities.map((e) => ({ topicId: e })),
+                          },
+                        },
+                      },
+                    },
+                  }
+                : undefined,
+            student:
+              userType === "Student"
+                ? {
+                    upsert: {
+                      create: {
+                        skillLevel: skillLevel!,
+                        areasOfInterest: {
+                          createMany: {
+                            skipDuplicates: true,
+                            data: areasOfInterest.map((a) => ({ topicId: a })),
+                          },
+                        },
+                      },
+                      update: {
+                        skillLevel,
+                        areasOfInterest: {
+                          createMany: {
+                            skipDuplicates: true,
+                            data: areasOfInterest.map((a) => ({ topicId: a })),
+                          },
+                        },
+                      },
+                    },
+                  }
+                : undefined,
+          },
+        },
+      },
+    });
+    return res.json(updated);
+  } catch (error) {
+    return next(error);
   }
 };

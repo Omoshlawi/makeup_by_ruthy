@@ -51,6 +51,7 @@ model Topic {
 model Student {
   id              String                  @id @default(uuid())
   profileId       String                  @unique
+  skillLevel      Level
   profile         Profile                 @relation(fields: [profileId], onDelete: Cascade, references: [id])
   createdAt       DateTime                @default(now())
   updatedAt       DateTime                @updatedAt
@@ -71,15 +72,15 @@ model StudentAreaOfInterest {
 }
 
 model Instructor {
-  id                String                 @id @default(uuid())
-  profileId         String                 @unique
-  profile           Profile                @relation(fields: [profileId], onDelete: Cascade, references: [id])
-  courses           Course[]
-  yearsOfExpirience Int
+  id           String                 @id @default(uuid())
+  profileId    String                 @unique
+  profile      Profile                @relation(fields: [profileId], onDelete: Cascade, references: [id])
+  courses      Course[]
+  experience   Int //Years of expirience
   // availability Json // Example: {"monday": ["9AM-11AM", "1PM-3PM"], ...}
-  createdAt         DateTime               @default(now())
-  updatedAt         DateTime               @updatedAt
-  specialities      InstructorSpeciality[]
+  createdAt    DateTime               @default(now())
+  updatedAt    DateTime               @updatedAt
+  specialities InstructorSpeciality[]
 }
 
 model InstructorSpeciality {
