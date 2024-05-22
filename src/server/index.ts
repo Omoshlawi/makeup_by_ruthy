@@ -7,6 +7,7 @@ import logger from "../shared/logger";
 import { default as userRouter } from "@/features/users/routes";
 import { default as authRouter } from "@/features/auth/routes";
 import coursesRouter from "@/features/courses/routes";
+import instructorsRouter from "@/features/instructors/routes";
 
 /**
  * Handle database connection logic
@@ -43,6 +44,7 @@ export const configureExpressApp = async (app: Application) => {
   app.use("/users", userRouter);
   app.use("/auth", authRouter);
   app.use("/courses", coursesRouter);
+  app.use("/instructors", instructorsRouter);
 
   //-------------------end routes-----------------------------
 

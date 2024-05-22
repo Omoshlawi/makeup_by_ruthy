@@ -99,12 +99,14 @@ model Course {
   title          String
   overview       String?       @db.Text
   tags           String?       @db.Text // Comma seperated tags
-  categoryId     String
+  status         CourseStatus  @default(Draft)
   thumbnail      String
   previewVideo   String
   instructorId   String
   language       String
-  timeToComplete String
+  timeToComplete Decimal //In minutes
+  price          Decimal
+  approved       Boolean       @default(false)
   level          Level
   createdAt      DateTime      @default(now())
   updatedAt      DateTime      @updatedAt
@@ -179,6 +181,11 @@ enum Level {
   Beginner
   Intermediate
   Advanced
+}
+
+enum CourseStatus {
+  Draft
+  Published
 }
 
 enum ContentType {
