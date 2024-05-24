@@ -101,7 +101,7 @@ model Course {
   tags           String?       @db.Text // Comma seperated tags
   status         CourseStatus  @default(Draft)
   thumbnail      String
-  previewVideo   String
+  previewVideo   Json //{"url":String, source: "network"|"file"|"network"}
   instructorId   String
   language       String
   timeToComplete Decimal //In minutes
