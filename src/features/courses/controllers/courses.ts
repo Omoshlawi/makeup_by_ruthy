@@ -49,6 +49,8 @@ export const addCourse = async (
   next: NextFunction
 ) => {
   try {
+    console.log(req.body);
+
     const user: User & { profile: Profile & { instructor: Instructor } } = (
       req as any
     ).user;

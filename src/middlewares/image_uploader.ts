@@ -51,6 +51,14 @@ export const renameFile = (fileName: string) =>
   "-" +
   slugify(fileName, { lower: true, trim: true });
 
+const generateFilePath = (filePath: string) => {
+  const fileNameWithoutExtension = filePath.slice(0, filePath.lastIndexOf("."));
+  const newPath = `${fileNameWithoutExtension}.jpeg`;
+  const fileName = path.basename(newPath);
+  const dirName = path.dirname(newPath);
+  return path.join(dirName, renameFile(fileName));
+};
+
 const saveImages = async (
   files: Express.Multer.File[],
   savePathRelative: string,
@@ -59,26 +67,21 @@ const saveImages = async (
     height: number;
     isGrayScale?: boolean;
     fit?: keyof sharp.FitEnum;
+    quality?: number; // New option for quality
   }
 ) => {
-  // Rename path by slugifying, adding timestamp and other info and change ext to jpeg
-  const filePaths = filesToPathArray(files, savePathRelative).map((path_) => {
-    const fileNameWithoutExtension = path_.slice(0, path_.lastIndexOf("."));
-    // Construct the new path with the `.jpeg` extension
-    const newPath = `${fileNameWithoutExtension}.jpeg`;
-    const fileName = path.basename(newPath);
-    const dirName = path.dirname(newPath);
-    const newFileName = renameFile(fileName);
-    return path.join(dirName, newFileName);
-  });
-  // Process and save files to the specified upload path
+  const filePaths = filesToPathArray(files, savePathRelative).map(
+    generateFilePath
+  );
+
   const uploadTasks = zip(filePaths, files).map(([path_, file]) =>
     sharp(file!.buffer)
-      .toFormat("jpeg", { mozjpeg: true })
+      .jpeg({ mozjpeg: true, quality: options?.quality ?? 80 }) // Adjust quality
       .resize(options?.width, options?.height, { fit: options?.fit })
       .grayscale(options?.isGrayScale ?? false)
       .toFile(path.join(MEDIA_ROOT, path_!))
   );
+
   const saved = await Promise.all(uploadTasks);
   return saved.map((outputInfo, index) => ({
     outputInfo,
@@ -86,6 +89,9 @@ const saveImages = async (
     absolute: path.join(MEDIA_ROOT, filePaths[index]),
   }));
 };
+
+const sanitizeFilename = (filename: string) =>
+  filename.replace(/[^\w\s.-]/gi, "");
 
 const deleteFileAsync = (filePath: string) =>
   new Promise<void>((resolve, reject) => {
