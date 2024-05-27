@@ -52,13 +52,8 @@ export const addCourse = async (
     const user: User & { profile: Profile & { instructor: Instructor } } = (
       req as any
     ).user;
-    const validation = await courseValidationSchema.safeParseAsync({
-      ...req.body,
-      previewVideo: {
-        source: "network",
-        url: req.body.previewVideo,
-      },
-    });
+
+    const validation = await courseValidationSchema.safeParseAsync(req.body);
     if (!validation.success)
       throw new APIException(400, validation.error.format());
     const topic = await CourseModel.create({

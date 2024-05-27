@@ -14,10 +14,8 @@ export const courseValidationSchema = z.object({
   status: z.enum(["Draft", "Published"]),
   price: z.number({ coerce: true }),
   timeToComplete: z.number({ coerce: true }),
-  previewVideo: z.object({
-    source: z.enum(["file", "network", "youtube"]),
-    url: z.string().min(1, "Preview video required"),
-  }),
+  previewVideo: z.string().min(1, "Preview video required"),
+  previewVideoSource: z.enum(["file", "network", "youtube"]),
   thumbnail: z.string().min(1, "Thumbnail required"),
   topics: z.array(z.string().uuid("Invalid topic")),
   tags: z.string(),
