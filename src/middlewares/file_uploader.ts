@@ -158,7 +158,7 @@ const fileUploader = {
     const storagePath = path.join(MEDIA_ROOT, uploadPath ?? "");
     ensureFolderExists(storagePath);
     return {
-      fields(fields: Field[]) {
+      fields(fields: (Field & { mode?: "single" | "array" })[]) {
         return async (req: Request, res: Response, next: NextFunction) => {
           try {
             const files = req.files as {
@@ -166,8 +166,18 @@ const fileUploader = {
             };
             if (!isEmpty(files)) {
               for (const field of fields) {
+                const _mode = field.mode ?? "array";
                 const fileList = files[field.name] ?? [];
-                console.log(fileList);
+                // Assertain that if mode is single only one file is provded
+                if (_mode == "single" && fileList.length > 1)
+                  throw new APIException(400, {
+                    [field.name]: {
+                      _errors: [
+                        `Espected single file for ${field.name} but received ${fileList.length}`,
+                      ],
+                    },
+                  });
+                // Process images and files if all test are passed
                 for (const file of fileList) {
                   let _file: { absolute: string; relative: string };
                   if (file.mimetype.split("/")[0] === "image") {
@@ -175,9 +185,13 @@ const fileUploader = {
                   } else {
                     _file = await saveFile(file, uploadPath ?? "");
                   }
-                  //   Add file relative to request body
-                  req.body[field.name] = req.body[field.name] ?? []; //Ensure field is initialized
-                  (req.body[field.name] as any[]).push(_file.relative);
+                  if (_mode == "single") {
+                    req.body[field.name] = _file.relative;
+                  } else {
+                    //   Add file relative to request body
+                    req.body[field.name] = req.body[field.name] ?? []; //Ensure field is initialized
+                    (req.body[field.name] as any[]).push(_file.relative);
+                  }
                   //   Setup Roleback for uploaded files in queur
                   addRollBackTaskToQueue(req, async () => {
                     await deleteFileAsync(_file.absolute);

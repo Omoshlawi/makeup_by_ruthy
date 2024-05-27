@@ -23,9 +23,10 @@ router.post(
       { name: "previewVideo", maxCount: 1 },
       { name: "thumbnail", maxCount: 1 },
     ]),
-    fileUploader
-      .postUpload("courses")
-      .fields([{ name: "previewVideo" }, { name: "thumbnail" }]),
+    fileUploader.postUpload("courses").fields([
+      { name: "previewVideo", mode: "single" },
+      { name: "thumbnail", mode: "single" },
+    ]),
   ],
   addCourse
 );
