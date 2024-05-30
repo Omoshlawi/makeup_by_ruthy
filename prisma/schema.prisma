@@ -120,7 +120,7 @@ model Course {
 model CourseTopic {
   id        String   @id @default(uuid())
   courseId  String
-  course    Course   @relation(fields: [courseId], references: [id])
+  course    Course   @relation(fields: [courseId], references: [id], onDelete: Cascade)
   topicId   String
   topic     Topic    @relation(fields: [topicId], onDelete: Cascade, references: [id])
   createdAt DateTime @default(now())
@@ -165,9 +165,9 @@ model Review {
 model Enrollment {
   id        String   @id @default(uuid())
   courseId  String
-  course    Course   @relation(fields: [courseId], references: [id])
+  course    Course   @relation(fields: [courseId], references: [id],onDelete: Cascade)
   studentId String
-  student   Student  @relation(fields: [studentId], references: [id])
+  student   Student  @relation(fields: [studentId], references: [id], onDelete: Cascade)
   createdAt DateTime @default(now())
 }
 

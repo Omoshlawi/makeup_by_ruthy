@@ -168,6 +168,10 @@ const fileUploader = {
               for (const field of fields) {
                 const _mode = field.mode ?? "array";
                 const fileList = files[field.name] ?? [];
+
+                // TODO Add Rollbacks to handle early errors
+
+
                 // Assertain that if mode is single only one file is provded
                 if (_mode == "single" && fileList.length > 1)
                   throw new APIException(400, {

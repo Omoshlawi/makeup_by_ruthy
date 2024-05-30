@@ -16,7 +16,7 @@ export const getCourses = async (
         instructor: true,
         modules: true,
         reviews: true,
-        topics: true,
+        topics: { include: { topic: true } },
       },
     });
     return res.json({ results: courses });
@@ -52,13 +52,19 @@ export const addCourse = async (
     const user: User & { profile: Profile & { instructor: Instructor } } = (
       req as any
     ).user;
-
     const validation = await courseValidationSchema.safeParseAsync(req.body);
     if (!validation.success)
       throw new APIException(400, validation.error.format());
     const topic = await CourseModel.create({
       data: {
-        ...validation.data,
+        ...{
+          ...validation.data,
+          previewVideoSource: undefined,
+          previewVideo: {
+            url: validation.data.previewVideo,
+            source: validation.data.previewVideoSource,
+          },
+        },
         instructorId: user.profile.instructor.id,
         topics: {
           createMany: {
@@ -79,13 +85,22 @@ export const updateCourse = async (
   next: NextFunction
 ) => {
   try {
+    console.log(req.body);
+
     const user: User = (req as any).user;
     const validation = await courseValidationSchema.safeParseAsync(req.body);
     if (!validation.success)
       throw new APIException(400, validation.error.format());
     const topic = await CourseModel.update({
       data: {
-        ...validation.data,
+        ...{
+          ...validation.data,
+          previewVideoSource: undefined,
+          previewVideo: {
+            url: validation.data.previewVideo,
+            source: validation.data.previewVideoSource,
+          },
+        },
         topics: {
           deleteMany: { courseId: req.params.id },
           createMany: {

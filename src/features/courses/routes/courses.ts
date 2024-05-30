@@ -31,6 +31,17 @@ router.post(
   addCourse
 );
 router.get("/:id", getCourse);
-router.put("/:id", updateCourse);
+router.put("/:id",[
+  authenticate,
+  requireInstructor,
+  fileUploader.diskStorage("tmp").fields([
+    { name: "previewVideo", maxCount: 1 },
+    { name: "thumbnail", maxCount: 1 },
+  ]),
+  fileUploader.postUpload("courses").fields([
+    { name: "previewVideo", mode: "single" },
+    { name: "thumbnail", mode: "single" },
+  ]),
+], updateCourse);
 router.delete("/:id", deleteCourse);
 export default router;
