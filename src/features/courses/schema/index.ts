@@ -20,3 +20,8 @@ export const courseValidationSchema = z.object({
   topics: z.array(z.string().uuid("Invalid topic")),
   tags: z.string(),
 });
+
+export const moduleValidationSchema = z.object({
+  title: z.string().min(1, "Title required"),
+  overview: z.string().min(10, "Overview too short").optional(),
+});

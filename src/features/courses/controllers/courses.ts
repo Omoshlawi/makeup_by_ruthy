@@ -85,7 +85,6 @@ export const updateCourse = async (
   next: NextFunction
 ) => {
   try {
-    console.log(req.body);
 
     const user: User = (req as any).user;
     const validation = await courseValidationSchema.safeParseAsync(req.body);
