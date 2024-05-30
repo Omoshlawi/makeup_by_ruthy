@@ -34,8 +34,11 @@ export const getCourse = async (
     const course = await CourseModel.findUniqueOrThrow({
       where: { id: req.params.id },
       include: {
+        _count: true,
+        instructor: true,
+        modules: true,
         reviews: true,
-        topics: true,
+        topics: { include: { topic: true } },
       },
     });
     return res.json({ results: course });
@@ -56,6 +59,13 @@ export const addCourse = async (
     if (!validation.success)
       throw new APIException(400, validation.error.format());
     const topic = await CourseModel.create({
+      include: {
+        _count: true,
+        instructor: true,
+        modules: true,
+        reviews: true,
+        topics: { include: { topic: true } },
+      },
       data: {
         ...{
           ...validation.data,
@@ -85,12 +95,18 @@ export const updateCourse = async (
   next: NextFunction
 ) => {
   try {
-
     const user: User = (req as any).user;
     const validation = await courseValidationSchema.safeParseAsync(req.body);
     if (!validation.success)
       throw new APIException(400, validation.error.format());
     const topic = await CourseModel.update({
+      include: {
+        _count: true,
+        instructor: true,
+        modules: true,
+        reviews: true,
+        topics: { include: { topic: true } },
+      },
       data: {
         ...{
           ...validation.data,
@@ -126,6 +142,13 @@ export const deleteCourse = async (
   try {
     const topic = await CourseModel.delete({
       where: { id: req.params.id },
+      include: {
+        _count: true,
+        instructor: true,
+        modules: true,
+        reviews: true,
+        topics: { include: { topic: true } },
+      },
     });
     return res.json(topic);
   } catch (error) {

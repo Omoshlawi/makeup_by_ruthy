@@ -26,6 +26,8 @@ export const handlePrismaErrors = (e: any) => {
     // );
 
     if (e.code === ERROR_CODES.NOT_FOUND) {
+      if (e.meta?.cause)
+        return { status: 404, errors: { detail: e.meta!.cause } };
       return { status: 404, errors: { detail: e.message } };
     } else if (e.code === ERROR_CODES.UNIQUE_CONTRAINT_FAILED) {
       const taget = (e.meta as any).target as string;
