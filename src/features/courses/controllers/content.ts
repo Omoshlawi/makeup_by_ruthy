@@ -157,7 +157,7 @@ export const deleteModuleContent = async (
       include: {
         _count: true,
         instructor: true,
-        modules: true,
+        modules: { include: { content: true } },
         reviews: true,
         topics: { include: { topic: true } },
       },
