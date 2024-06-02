@@ -152,6 +152,8 @@ model Content {
   module    Module      @relation(fields: [moduleId], onDelete: Cascade, references: [id])
   createdAt DateTime    @default(now())
   updatedAt DateTime    @updatedAt
+
+  @@unique([moduleId, title])
 }
 
 model Review {

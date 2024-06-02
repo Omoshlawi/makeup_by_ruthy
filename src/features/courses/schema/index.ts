@@ -26,3 +26,10 @@ export const moduleValidationSchema = z.object({
   overview: z.string().min(10, "Overview too short").optional(),
   order: z.number({ coerce: true }).min(-1).optional().default(-1),
 });
+
+export const contentValidationSchema = z.object({
+  title: z.string().min(1, "Title required"),
+  type: z.enum(["Video", "Document", "Text", "Image"]),
+  resource: z.string().min(1, "Required"),
+  order: z.number({ coerce: true }).min(-1).optional().default(-1),
+});

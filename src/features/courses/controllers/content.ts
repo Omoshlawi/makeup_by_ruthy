@@ -1,9 +1,10 @@
-import { NextFunction, Request, Response } from "express";
-import { moduleValidationSchema } from "../schema";
-import { APIException } from "@/shared/exceprions";
-import { CourseModel, CourseModuleModel } from "../models";
 import { User } from "@prisma/client";
-export const addCourseModule = async (
+import { NextFunction, Request, Response } from "express";
+import { contentValidationSchema } from "../schema";
+import { APIException } from "@/shared/exceprions";
+import { ContentModel, CourseModel } from "../models";
+
+export const addModuleContent = async (
   req: Request,
   res: Response,
   next: NextFunction
@@ -11,79 +12,35 @@ export const addCourseModule = async (
   try {
     const user: User = (req as any).user;
     const courseId: string = req.params.courseId;
-    const validation = await moduleValidationSchema.safeParseAsync(req.body);
+    const moduleId: string = req.params.moduleId;
+
+    const validation = await contentValidationSchema.safeParseAsync(req.body);
     if (!validation.success)
       throw new APIException(400, validation.error.format());
-
     if (
-      await CourseModuleModel.findFirst({
-        where: { courseId, title: validation.data.title },
+      await ContentModel.findFirst({
+        where: { moduleId, title: validation.data.title },
       })
     )
       throw new APIException(400, {
-        title: { errors: ["Modules title for a course must be unique"] },
+        title: { errors: ["Content title for a module must be unique"] },
       });
-    // TODO Handle module Orders later
+    // TODO Handle content Orders later
     const course = await CourseModel.update({
       where: {
         id: courseId,
         instructor: { profile: { userId: user.id } },
-      },
-      data: {
-        modules: {
-          create: validation.data,
-        },
-      },
-      include: {
-        _count: true,
-        instructor: true,
-        modules: { include: { content: true } },
-        reviews: true,
-        topics: { include: { topic: true } },
-      },
-    });
-    return res.json(course);
-  } catch (error) {
-    next(error);
-  }
-};
-
-export const updateCourseModule = async (
-  req: Request,
-  res: Response,
-  next: NextFunction
-) => {
-  try {
-    const user: User = (req as any).user;
-    const courseId: string = req.params.courseId;
-    const moduleId = req.params.id!;
-    const validation = await moduleValidationSchema.safeParseAsync(req.body);
-    if (!validation.success)
-      throw new APIException(400, validation.error.format());
-
-    if (
-      await CourseModuleModel.findFirst({
-        where: {
-          courseId,
-          title: validation.data.title,
-          id: { not: moduleId },
-        },
-      })
-    )
-      throw new APIException(400, {
-        title: { errors: ["Modules title for a course must be unique"] },
-      });
-    const course = await CourseModel.update({
-      where: {
-        id: courseId,
         modules: { some: { id: moduleId } },
-        instructor: { profile: { userId: user.id } },
       },
       data: {
         modules: {
           update: {
-            data: validation.data,
             where: { id: moduleId },
+            data: {
+              content: {
+                create: validation.data,
+              },
+            },
           },
         },
       },
@@ -95,13 +52,14 @@ export const updateCourseModule = async (
         topics: { include: { topic: true } },
       },
     });
+
     return res.json(course);
   } catch (error) {
     next(error);
   }
 };
 
-export const deleteCourseModule = async (
+export const updateModuleContent = async (
   req: Request,
   res: Response,
   next: NextFunction
@@ -109,17 +67,46 @@ export const deleteCourseModule = async (
   try {
     const user: User = (req as any).user;
     const courseId: string = req.params.courseId;
-    const moduleId = req.params.id!;
+    const moduleId: string = req.params.moduleId;
+    const contentId: string = req.params.id;
 
+    const validation = await contentValidationSchema.safeParseAsync(req.body);
+    if (!validation.success)
+      throw new APIException(400, validation.error.format());
+    if (
+      await ContentModel.findFirst({
+        where: {
+          moduleId,
+          title: validation.data.title,
+          id: { not: contentId },
+        },
+      })
+    )
+      throw new APIException(400, {
+        title: { errors: ["Content title for a module must be unique"] },
+      });
+    // TODO Handle content Orders later
     const course = await CourseModel.update({
       where: {
         id: courseId,
-        modules: { some: { id: moduleId } },
         instructor: { profile: { userId: user.id } },
+        modules: {
+          some: { id: moduleId, content: { some: { id: contentId } } },
+        },
       },
       data: {
         modules: {
-          delete: { id: moduleId },
+          update: {
+            where: { id: moduleId },
+            data: {
+              content: {
+                update: {
+                  where: { id: contentId },
+                  data: validation.data,
+                },
+              },
+            },
+          },
         },
       },
       include: {
@@ -130,6 +117,52 @@ export const deleteCourseModule = async (
         topics: { include: { topic: true } },
       },
     });
+
+    return res.json(course);
+  } catch (error) {
+    next(error);
+  }
+};
+export const deleteModuleContent = async (
+  req: Request,
+  res: Response,
+  next: NextFunction
+) => {
+  try {
+    const user: User = (req as any).user;
+    const courseId: string = req.params.courseId;
+    const moduleId: string = req.params.moduleId;
+    const contentId: string = req.params.id;
+
+    const course = await CourseModel.update({
+      where: {
+        id: courseId,
+        instructor: { profile: { userId: user.id } },
+        modules: {
+          some: { id: moduleId, content: { some: { id: contentId } } },
+        },
+      },
+      data: {
+        modules: {
+          update: {
+            where: { id: moduleId },
+            data: {
+              content: {
+                delete: { id: contentId },
+              },
+            },
+          },
+        },
+      },
+      include: {
+        _count: true,
+        instructor: true,
+        modules: true,
+        reviews: true,
+        topics: { include: { topic: true } },
+      },
+    });
+
     return res.json(course);
   } catch (error) {
     next(error);
