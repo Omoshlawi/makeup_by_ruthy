@@ -3,7 +3,6 @@ import { moduleValidationSchema } from "../schema";
 import { APIException } from "@/shared/exceprions";
 import { CourseModel, CourseModuleModel } from "../models";
 import { User } from "@prisma/client";
-
 export const addCourseModule = async (
   req: Request,
   res: Response,
@@ -24,6 +23,7 @@ export const addCourseModule = async (
       throw new APIException(400, {
         title: { errors: ["Modules title for a course must be unique"] },
       });
+    // TODO Handle module Orders later
     const course = await CourseModel.update({
       where: {
         id: courseId,
@@ -54,8 +54,6 @@ export const updateCourseModule = async (
   next: NextFunction
 ) => {
   try {
-    console.log(req.params);
-
     const user: User = (req as any).user;
     const courseId: string = req.params.courseId;
     const moduleId = req.params.id!;

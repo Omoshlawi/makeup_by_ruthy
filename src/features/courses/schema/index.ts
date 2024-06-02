@@ -24,4 +24,5 @@ export const courseValidationSchema = z.object({
 export const moduleValidationSchema = z.object({
   title: z.string().min(1, "Title required"),
   overview: z.string().min(10, "Overview too short").optional(),
+  order: z.number({ coerce: true }).min(-1).optional().default(-1),
 });

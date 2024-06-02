@@ -131,6 +131,7 @@ model CourseTopic {
 model Module {
   id        String    @id @default(uuid())
   courseId  String
+  order     Int
   title     String
   overview  String?   @db.Text
   course    Course    @relation(fields: [courseId], onDelete: Cascade, references: [id])
@@ -144,9 +145,10 @@ model Module {
 model Content {
   id        String      @id @default(uuid())
   moduleId  String
+  order     Int
+  title     String
   type      ContentType
   resource  String      @db.Text
-  metadata  Json // Example: {"duration": "5min", "author": "Instructor Name"}
   module    Module      @relation(fields: [moduleId], onDelete: Cascade, references: [id])
   createdAt DateTime    @default(now())
   updatedAt DateTime    @updatedAt
@@ -159,18 +161,20 @@ model Review {
   studentId String
   student   Student  @relation(fields: [studentId], references: [id], onDelete: Cascade)
   rating    Float // You can use an integer or float depending on the granularity of the rating system
-  text      String?  @db.Text
+  comment   String?  @db.Text
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 }
 
 model Enrollment {
-  id        String   @id @default(uuid())
-  courseId  String
-  course    Course   @relation(fields: [courseId], references: [id], onDelete: Cascade)
-  studentId String
-  student   Student  @relation(fields: [studentId], references: [id], onDelete: Cascade)
-  createdAt DateTime @default(now())
+  id             String    @id @default(uuid())
+  courseId       String
+  course         Course    @relation(fields: [courseId], references: [id], onDelete: Cascade)
+  studentId      String
+  student        Student   @relation(fields: [studentId], references: [id], onDelete: Cascade)
+  progress       Decimal
+  completionDate DateTime?
+  createdAt      DateTime  @default(now())
 }
 
 enum Gender {
