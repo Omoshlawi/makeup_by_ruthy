@@ -1,7 +1,7 @@
 import { NextFunction, Request, Response } from "express";
 import { CourseModel } from "../models";
 import { APIException } from "@/shared/exceprions";
-import { courseValidationSchema } from "../schema";
+import { courseSearchSchema, courseValidationSchema } from "../schema";
 import { Instructor, Profile, User } from "@prisma/client";
 
 export const getCourses = async (
@@ -10,7 +10,50 @@ export const getCourses = async (
   next: NextFunction
 ) => {
   try {
+    const validation = await courseSearchSchema.safeParseAsync(req.query);
+    if (!validation.success)
+      throw new APIException(400, validation.error.format());
+
+    const {
+      language,
+      level,
+      maxDuration,
+      minDuration,
+      maxPrice,
+      minPrice,
+      search,
+    } = validation.data;
+
     const courses = await CourseModel.findMany({
+      where: {
+        language,
+        level,
+        timeToComplete: { gte: minDuration, lte: maxDuration },
+        price: { gte: minPrice, lte: maxPrice },
+        OR: [
+          {
+            title: {
+              contains: search,
+            },
+          },
+          {
+            overview: {
+              contains: search,
+            },
+          },
+          {
+            instructor: {
+              profile: {
+                OR: [
+                  { email: search },
+                  { phoneNumber: search },
+                  { name: search },
+                ],
+              },
+            },
+          },
+        ],
+      },
       include: {
         _count: true,
         instructor: true,

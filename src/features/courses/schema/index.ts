@@ -1,5 +1,15 @@
 import { z } from "zod";
 
+export const courseSearchSchema = z.object({
+  search: z.string().optional(),
+  language: z.enum(["English", "Swahili"]).optional(),
+  level: z.enum(["Beginner", "Intermediate", "Advanced"]).optional(),
+  minPrice: z.number({ coerce: true }).optional(),
+  maxPrice: z.number({ coerce: true }).optional(),
+  minDuration: z.number({ coerce: true }).optional(),
+  maxDuration: z.number({ coerce: true }).optional(),
+});
+
 export const topicValidationSchema = z.object({
   name: z.string().max(191).min(1, "Topic name required"),
   overview: z.string().optional(),

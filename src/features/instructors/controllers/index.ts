@@ -12,7 +12,14 @@ export const getInstructors = async (
       where: { profile: { instructor: { isNot: null } } },
       include: {
         profile: {
-          include: { instructor: true },
+          include: {
+            instructor: {
+              include: {
+                specialities: { include: { topic: true } },
+                courses: true,
+              },
+            },
+          },
         },
       },
     });
