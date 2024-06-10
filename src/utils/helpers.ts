@@ -45,7 +45,9 @@ export const generateUserToken = (payload: any) => {
   return token;
 };
 
+export const checkPassword = async (hash: string, password: string) => {
+  return await bcrypt.compare(password, hash);
+};
 
-export const checkPassword = async(hash:string, password:string) => {
-  return await bcrypt.compare(password, hash)
-}
+export const paginate = (pageSize: number, page: number) =>
+  (page - 1) * pageSize;

@@ -3,6 +3,7 @@ import { CourseModel } from "../models";
 import { APIException } from "@/shared/exceprions";
 import { courseSearchSchema, courseValidationSchema } from "../schema";
 import { Instructor, Profile, User } from "@prisma/client";
+import { paginate } from "@/utils/helpers";
 
 export const getCourses = async (
   req: Request,
@@ -22,38 +23,51 @@ export const getCourses = async (
       maxPrice,
       minPrice,
       search,
+      page,
+      pageSize,
     } = validation.data;
 
     const courses = await CourseModel.findMany({
       where: {
-        language,
-        level,
-        timeToComplete: { gte: minDuration, lte: maxDuration },
-        price: { gte: minPrice, lte: maxPrice },
-        OR: [
+        AND: [
           {
-            title: {
-              contains: search,
-            },
+            language,
+            level,
+            timeToComplete: { gte: minDuration, lte: maxDuration },
+            price: { gte: minPrice, lte: maxPrice },
           },
           {
-            overview: {
-              contains: search,
-            },
-          },
-          {
-            instructor: {
-              profile: {
-                OR: [
-                  { email: search },
-                  { phoneNumber: search },
-                  { name: search },
-                ],
-              },
-            },
+            OR: search
+              ? [
+                  {
+                    title: {
+                      contains: search,
+                    },
+                  },
+                  {
+                    overview: {
+                      contains: search,
+                    },
+                  },
+                  {
+                    instructor: {
+                      profile: {
+                        OR: [
+                          { email: search },
+                          { phoneNumber: search },
+                          { name: search },
+                        ],
+                      },
+                    },
+                  },
+                ]
+              : undefined,
           },
         ],
       },
+      skip: paginate(pageSize, page),
+      take: pageSize,
+      orderBy: { createdAt: "asc" },
       include: {
         _count: true,
         instructor: true,

@@ -8,6 +8,8 @@ export const courseSearchSchema = z.object({
   maxPrice: z.number({ coerce: true }).optional(),
   minDuration: z.number({ coerce: true }).optional(),
   maxDuration: z.number({ coerce: true }).optional(),
+  page: z.number({ coerce: true }).min(1).optional().default(1),
+  pageSize: z.number({ coerce: true }).min(1).optional().default(10),
 });
 
 export const topicValidationSchema = z.object({
