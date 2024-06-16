@@ -50,6 +50,7 @@ CREATE TABLE `Topic` (
 CREATE TABLE `Student` (
     `id` VARCHAR(191) NOT NULL,
     `profileId` VARCHAR(191) NOT NULL,
+    `skillLevel` ENUM('Beginner', 'Intermediate', 'Advanced') NOT NULL,
     `createdAt` DATETIME(3) NOT NULL DEFAULT CURRENT_TIMESTAMP(3),
     `updatedAt` DATETIME(3) NOT NULL,
 
@@ -72,7 +73,7 @@ CREATE TABLE `StudentAreaOfInterest` (
 CREATE TABLE `Instructor` (
     `id` VARCHAR(191) NOT NULL,
     `profileId` VARCHAR(191) NOT NULL,
-    `yearsOfExpirience` INTEGER NOT NULL,
+    `experience` INTEGER NOT NULL,
     `createdAt` DATETIME(3) NOT NULL DEFAULT CURRENT_TIMESTAMP(3),
     `updatedAt` DATETIME(3) NOT NULL,
 
@@ -97,12 +98,14 @@ CREATE TABLE `Course` (
     `title` VARCHAR(191) NOT NULL,
     `overview` TEXT NULL,
     `tags` TEXT NULL,
-    `categoryId` VARCHAR(191) NOT NULL,
+    `status` ENUM('Draft', 'Published') NOT NULL DEFAULT 'Draft',
     `thumbnail` VARCHAR(191) NOT NULL,
-    `previewVideo` VARCHAR(191) NOT NULL,
+    `previewVideo` JSON NOT NULL,
     `instructorId` VARCHAR(191) NOT NULL,
     `language` VARCHAR(191) NOT NULL,
-    `timeToComplete` VARCHAR(191) NOT NULL,
+    `timeToComplete` DECIMAL(65, 30) NOT NULL,
+    `price` DECIMAL(65, 30) NOT NULL,
+    `approved` BOOLEAN NOT NULL DEFAULT false,
     `level` ENUM('Beginner', 'Intermediate', 'Advanced') NOT NULL,
     `createdAt` DATETIME(3) NOT NULL DEFAULT CURRENT_TIMESTAMP(3),
     `updatedAt` DATETIME(3) NOT NULL,
@@ -125,11 +128,13 @@ CREATE TABLE `CourseTopic` (
 CREATE TABLE `Module` (
     `id` VARCHAR(191) NOT NULL,
     `courseId` VARCHAR(191) NOT NULL,
+    `order` INTEGER NOT NULL,
     `title` VARCHAR(191) NOT NULL,
     `overview` TEXT NULL,
     `createdAt` DATETIME(3) NOT NULL DEFAULT CURRENT_TIMESTAMP(3),
     `updatedAt` DATETIME(3) NOT NULL,
 
+    UNIQUE INDEX `Module_courseId_title_key`(`courseId`, `title`),
     PRIMARY KEY (`id`)
 ) DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
 
@@ -137,12 +142,14 @@ CREATE TABLE `Module` (
 CREATE TABLE `Content` (
     `id` VARCHAR(191) NOT NULL,
     `moduleId` VARCHAR(191) NOT NULL,
+    `order` INTEGER NOT NULL,
+    `title` VARCHAR(191) NOT NULL,
     `type` ENUM('Video', 'Document', 'Text', 'Image') NOT NULL,
     `resource` TEXT NOT NULL,
-    `metadata` JSON NOT NULL,
     `createdAt` DATETIME(3) NOT NULL DEFAULT CURRENT_TIMESTAMP(3),
     `updatedAt` DATETIME(3) NOT NULL,
 
+    UNIQUE INDEX `Content_moduleId_title_key`(`moduleId`, `title`),
     PRIMARY KEY (`id`)
 ) DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
 
@@ -152,7 +159,7 @@ CREATE TABLE `Review` (
     `courseId` VARCHAR(191) NOT NULL,
     `studentId` VARCHAR(191) NOT NULL,
     `rating` DOUBLE NOT NULL,
-    `text` TEXT NULL,
+    `comment` TEXT NULL,
     `createdAt` DATETIME(3) NOT NULL DEFAULT CURRENT_TIMESTAMP(3),
     `updatedAt` DATETIME(3) NOT NULL,
 
@@ -164,6 +171,8 @@ CREATE TABLE `Enrollment` (
     `id` VARCHAR(191) NOT NULL,
     `courseId` VARCHAR(191) NOT NULL,
     `studentId` VARCHAR(191) NOT NULL,
+    `progress` DECIMAL(65, 30) NOT NULL,
+    `completionDate` DATETIME(3) NULL,
     `createdAt` DATETIME(3) NOT NULL DEFAULT CURRENT_TIMESTAMP(3),
 
     PRIMARY KEY (`id`)
@@ -194,7 +203,7 @@ ALTER TABLE `InstructorSpeciality` ADD CONSTRAINT `InstructorSpeciality_topicId_
 ALTER TABLE `Course` ADD CONSTRAINT `Course_instructorId_fkey` FOREIGN KEY (`instructorId`) REFERENCES `Instructor`(`id`) ON DELETE CASCADE ON UPDATE CASCADE;
 
 -- AddForeignKey
-ALTER TABLE `CourseTopic` ADD CONSTRAINT `CourseTopic_courseId_fkey` FOREIGN KEY (`courseId`) REFERENCES `Course`(`id`) ON DELETE RESTRICT ON UPDATE CASCADE;
+ALTER TABLE `CourseTopic` ADD CONSTRAINT `CourseTopic_courseId_fkey` FOREIGN KEY (`courseId`) REFERENCES `Course`(`id`) ON DELETE CASCADE ON UPDATE CASCADE;
 
 -- AddForeignKey
 ALTER TABLE `CourseTopic` ADD CONSTRAINT `CourseTopic_topicId_fkey` FOREIGN KEY (`topicId`) REFERENCES `Topic`(`id`) ON DELETE CASCADE ON UPDATE CASCADE;
@@ -212,7 +221,7 @@ ALTER TABLE `Review` ADD CONSTRAINT `Review_courseId_fkey` FOREIGN KEY (`courseI
 ALTER TABLE `Review` ADD CONSTRAINT `Review_studentId_fkey` FOREIGN KEY (`studentId`) REFERENCES `Student`(`id`) ON DELETE CASCADE ON UPDATE CASCADE;
 
 -- AddForeignKey
-ALTER TABLE `Enrollment` ADD CONSTRAINT `Enrollment_courseId_fkey` FOREIGN KEY (`courseId`) REFERENCES `Course`(`id`) ON DELETE RESTRICT ON UPDATE CASCADE;
+ALTER TABLE `Enrollment` ADD CONSTRAINT `Enrollment_courseId_fkey` FOREIGN KEY (`courseId`) REFERENCES `Course`(`id`) ON DELETE CASCADE ON UPDATE CASCADE;
 
 -- AddForeignKey
-ALTER TABLE `Enrollment` ADD CONSTRAINT `Enrollment_studentId_fkey` FOREIGN KEY (`studentId`) REFERENCES `Student`(`id`) ON DELETE RESTRICT ON UPDATE CASCADE;
+ALTER TABLE `Enrollment` ADD CONSTRAINT `Enrollment_studentId_fkey` FOREIGN KEY (`studentId`) REFERENCES `Student`(`id`) ON DELETE CASCADE ON UPDATE CASCADE;
