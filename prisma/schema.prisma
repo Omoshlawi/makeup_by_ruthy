@@ -174,9 +174,28 @@ model Enrollment {
   course         Course    @relation(fields: [courseId], references: [id], onDelete: Cascade)
   studentId      String
   student        Student   @relation(fields: [studentId], references: [id], onDelete: Cascade)
-  progress       Decimal
+  progress       Json?
   completionDate DateTime?
   createdAt      DateTime  @default(now())
+  payment        Payment?
+}
+
+model Payment {
+  id                 String     @id @unique @default(uuid())
+  amount             Decimal
+  enrollmentId       String     @unique
+  enrollment         Enrollment @relation(fields: [enrollmentId], onDelete: Cascade, references: [id])
+  complete           Boolean    @default(false)
+  description        String?    @db.Text
+  merchantRequestId  String     @unique
+  checkoutRequestId  String
+  resultCode         String?
+  resultDescription  String?
+  mpesareceiptNumber String?
+  transactionDate    String?
+  phoneNumber        String?
+  createdAt          DateTime   @default(now())
+  updatedAt          DateTime   @updatedAt
 }
 
 enum Gender {

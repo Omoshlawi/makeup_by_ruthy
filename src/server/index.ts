@@ -8,6 +8,7 @@ import { default as userRouter } from "@/features/users/routes";
 import { default as authRouter } from "@/features/auth/routes";
 import coursesRouter from "@/features/courses/routes";
 import instructorsRouter from "@/features/instructors/routes";
+import studentsRouter from "@/features/students/routes";
 
 /**
  * Handle database connection logic
@@ -45,6 +46,7 @@ export const configureExpressApp = async (app: Application) => {
   app.use("/auth", authRouter);
   app.use("/courses", coursesRouter);
   app.use("/instructors", instructorsRouter);
+  app.use("/students", studentsRouter);
 
   //-------------------end routes-----------------------------
 
