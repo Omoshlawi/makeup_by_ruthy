@@ -3,6 +3,7 @@ import {
   enroll,
   getStudents,
   completeEnrollmentPayement,
+  getMyEnrollments,
 } from "../controllers";
 import { requireAuthenticated } from "@/middlewares";
 import { requireStudent } from "@/middlewares/require_roles";
@@ -17,9 +18,15 @@ router.post(
   enroll
 );
 router.post(
-  "/enrollment/:enrollmentId/complete-payment",
+  "/enrollments/:enrollmentId/complete-payment",
   [validateUUIDPathParam("enrollmentId"), requireAuthenticated, requireStudent],
   completeEnrollmentPayement
+);
+
+router.get(
+  "/enrollments",
+  [requireAuthenticated, requireStudent],
+  getMyEnrollments
 );
 
 export default router;

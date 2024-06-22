@@ -163,3 +163,14 @@ export const completeEnrollmentPayement = async (
     next(error);
   }
 };
+
+export const getMyEnrollments = async (
+  req: Request,
+  res: Response,
+  next: NextFunction
+) => {
+  try {
+  } catch (error) {
+    next(error);
+  }
+};

@@ -66,3 +66,15 @@ export function normalizePhoneNumber(phoneNumber: string) {
     throw new Error("Invalid Kenyan phone number format");
   }
 }
+
+export const normalizeIp = (ip: string) => {
+  // Normalize IPv6 localhost address
+  if (ip === "::1") {
+    return "127.0.0.1";
+  }
+  // Strip IPv6 prefix for IPv4 addresses
+  if (ip.startsWith("::ffff:")) {
+    return ip.replace("::ffff:", "");
+  }
+  return ip;
+};
