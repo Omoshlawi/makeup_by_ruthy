@@ -41,6 +41,7 @@ export const configureExpressApp = async (app: Application) => {
   // ------------------End middlewares------------------------
 
   //------------------- routes --------------------------------
+
   // Add routes here
   app.use("/users", userRouter);
   app.use("/auth", authRouter);

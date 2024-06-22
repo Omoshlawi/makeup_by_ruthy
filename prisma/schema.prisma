@@ -171,6 +171,7 @@ model Review {
 model Enrollment {
   id             String    @id @default(uuid())
   courseId       String
+  cost           Decimal
   course         Course    @relation(fields: [courseId], references: [id], onDelete: Cascade)
   studentId      String
   student        Student   @relation(fields: [studentId], references: [id], onDelete: Cascade)
@@ -182,7 +183,7 @@ model Enrollment {
 
 model Payment {
   id                 String     @id @unique @default(uuid())
-  amount             Decimal
+  amount             Decimal?
   enrollmentId       String     @unique
   enrollment         Enrollment @relation(fields: [enrollmentId], onDelete: Cascade, references: [id])
   complete           Boolean    @default(false)

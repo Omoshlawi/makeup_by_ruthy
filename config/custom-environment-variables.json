@@ -1,5 +1,14 @@
 {
   "port": "PORT",
   "jwt": "JWT_TOKEN",
-  "db": "DATABASE_URL"
+  "db": "DATABASE_URL",
+  "backend_url": "BACKEND_URL",
+  "mpesa_consumer_secrete": "MPESA_CONSUMER_SECRETE",
+  "mpesa_debug": "MPESA_DEBUG",
+  "mpesa_consumer_key": "MPESA_CONSUMER_KEY",
+  "mpesa_short_code": "MPESA_SHORT_CODE",
+  "mpesa_initiator_password": "MPESA_INITIATOR_PASSWORD",
+  "mpesa_pass_key": "MPESA_PASS_KEY",
+  "mpesa_env": "MPESA_ENV",
+  "mpesa_account_ref": "MPESA_ACCOUNT_REF"
 }

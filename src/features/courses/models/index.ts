@@ -1,4 +1,4 @@
-import prisma from "@/db";
+import prisma from "@/services/db";
 
 export const CourseModel = prisma.course;
 export const CourseModuleModel = prisma.module;

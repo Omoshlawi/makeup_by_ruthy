@@ -51,3 +51,18 @@ export const checkPassword = async (hash: string, password: string) => {
 
 export const paginate = (pageSize: number, page: number) =>
   (page - 1) * pageSize;
+
+export function normalizePhoneNumber(phoneNumber: string) {
+  // Define the regex pattern to capture the phone number part
+  const kenyanPhoneNumberRegex = /^(\+?254|0)?((7|1)\d{8})$/;
+
+  // Match the phone number against the regex
+  const match = phoneNumber.match(kenyanPhoneNumberRegex);
+
+  // If there's a match, return the captured group; otherwise, return null or throw an error
+  if (match) {
+    return match[2]; // The second capturing group contains the desired phone number part
+  } else {
+    throw new Error("Invalid Kenyan phone number format");
+  }
+}

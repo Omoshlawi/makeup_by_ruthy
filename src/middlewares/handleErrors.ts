@@ -1,4 +1,4 @@
-import { handlePrismaErrors } from "@/db";
+import { handlePrismaErrors } from "@/services/db";
 import logger from "@/shared/logger";
 import { executeRollBackTasks } from "@/shared/tasks";
 import { NextFunction, Request, Response } from "express";
