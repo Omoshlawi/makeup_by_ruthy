@@ -44,13 +44,19 @@ export const enroll = async (
     const student = (req as any).user as User & {
       profile: Profile & { student: Student };
     };
-    // Assert course exist and user aint auther and user aint enrolled to it yet
+    // Assert course exist and user aint auther and user aint enrolled and completed payment to it yet
     const course = await CourseModel.findUniqueOrThrow({
       where: {
         id: req.params.courseId,
         instructor: { profile: { userId: { not: student.id } } },
-        enrollments: { none: { studentId: student.profile.student.id } },
+        enrollments: {
+          none: {
+            studentId: student.profile.student.id,
+            // payment: { complete: true },
+          },
+        },
       },
+      include: { enrollments: true },
     });
 
     // Clean phone number by removing code +?254|0
@@ -85,11 +91,29 @@ export const enroll = async (
           },
         },
       },
+      include: {
+        course: true,
+        payment: {
+          select: {
+            amount: true,
+            mpesareceiptNumber: true,
+            complete: true,
+            phoneNumber: true,
+            createdAt: true,
+            updatedAt: true,
+            id: true,
+            transactionDate: true,
+            enrollmentId: true,
+            description: true,
+          },
+        },
+      },
     });
 
     return res.json({
       detail:
         "Enrollment succesfull, KIndly complete payment to access course content",
+        enrollment:enrollemt,
     });
   } catch (error) {
     next(error);
@@ -117,7 +141,23 @@ export const completeEnrollmentPayement = async (
         studentId: student.profile.student.id,
         OR: [{ payment: null }, { payment: { complete: false } }],
       },
-      include: { course: true, payment: true },
+      include: {
+        course: true,
+        payment: {
+          select: {
+            amount: true,
+            mpesareceiptNumber: true,
+            complete: true,
+            phoneNumber: true,
+            createdAt: true,
+            updatedAt: true,
+            id: true,
+            transactionDate: true,
+            enrollmentId: true,
+            description: true,
+          },
+        },
+      },
     });
 
     // Clean phone number by removing code +?254|0
@@ -154,10 +194,28 @@ export const completeEnrollmentPayement = async (
           }, // Create new payment
         },
       },
+      include: {
+        course: true,
+        payment: {
+          select: {
+            amount: true,
+            mpesareceiptNumber: true,
+            complete: true,
+            phoneNumber: true,
+            createdAt: true,
+            updatedAt: true,
+            id: true,
+            transactionDate: true,
+            enrollmentId: true,
+            description: true,
+          },
+        },
+      },
     });
 
     return res.json({
       detail: "KIndly complete mpesa payment to access course content",
+      enrollment: enrollment,
     });
   } catch (error) {
     next(error);
@@ -170,6 +228,30 @@ export const getMyEnrollments = async (
   next: NextFunction
 ) => {
   try {
+    const student = (req as any).user as User & {
+      profile: Profile & { student: Student };
+    };
+    const enrollments = await EnrollmentModel.findMany({
+      where: { studentId: student.profile.student.id },
+      include: {
+        course: true,
+        payment: {
+          select: {
+            amount: true,
+            mpesareceiptNumber: true,
+            complete: true,
+            phoneNumber: true,
+            createdAt: true,
+            updatedAt: true,
+            id: true,
+            transactionDate: true,
+            enrollmentId: true,
+            description: true,
+          },
+        },
+      },
+    });
+    return res.json({ results: enrollments });
   } catch (error) {
     next(error);
   }

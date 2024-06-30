@@ -171,7 +171,7 @@ model Review {
 model Enrollment {
   id             String    @id @default(uuid())
   courseId       String
-  cost           Decimal
+  cost           Decimal //Price of course as per enrollment time, resets when payment aint complete
   course         Course    @relation(fields: [courseId], references: [id], onDelete: Cascade)
   studentId      String
   student        Student   @relation(fields: [studentId], references: [id], onDelete: Cascade)

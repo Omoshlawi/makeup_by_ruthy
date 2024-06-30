@@ -98,7 +98,7 @@ export const getCourse = async (
         topics: { include: { topic: true } },
       },
     });
-    return res.json({ results: course });
+    return res.json(course);
   } catch (error) {
     next(error);
   }
