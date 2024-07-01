@@ -289,7 +289,8 @@ export const progress = async (
     const enrollmentId = req.params.enrollmentId;
 
     // Assertain paid course enrollemnt exist with asociatted modules and content and try create progress
-    const enrollment = await EnrollmentModel.update({
+    let enrollment;
+    enrollment = await EnrollmentModel.update({
       where: {
         id: enrollmentId,
         course: {
@@ -309,20 +310,26 @@ export const progress = async (
         },
       },
       include: {
-        course: true,
+        course: {
+          select: {
+            modules: {
+              select: { id: true, _count: { select: { content: true } } },
+            },
+          },
+        },
         moduleProgress: {
           select: {
-            id: true,
+            // id: true,
             moduleId: true,
-            contents: {
-              select: {
-                id: true,
-                contentId: true,
-                createdAt: true,
-              },
-            },
-            createdAt: true,
-            _count: true,
+            _count: { select: { contents: true } },
+            // contents: {
+            //   select: {
+            //     id: true,
+            //     contentId: true,
+            //     createdAt: true,
+            //   },
+            // },
+            // createdAt: true,
           },
         },
       },
@@ -340,7 +347,30 @@ export const progress = async (
       },
     });
 
-    return res.json(enrollment);
+    // Calculate progress percentage
+    const totalContents = enrollment.course.modules.reduce<number>(
+      (acc, { _count: { content } }) => acc + content,
+      0
+    );
+    const completedContents = enrollment.moduleProgress.reduce<number>(
+      (acc, { _count: { contents } }) => acc + contents,
+      0
+    );
+    const progressPercentage =
+      totalContents > 0 ? (completedContents / totalContents) * 100 : 0.0;
+
+    // Update progress percentage
+    await EnrollmentModel.update({
+      where: {
+        id: enrollmentId,
+      },
+      data: {
+        progressPercentage,
+      },
+    });
+
+    // Return updated enrollment with progresses
+    return res.json({ ...enrollment, progressPercentage });
   } catch (error) {
     next(error);
   }

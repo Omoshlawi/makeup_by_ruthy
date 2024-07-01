@@ -171,16 +171,17 @@ model Review {
 }
 
 model Enrollment {
-  id             String           @id @default(uuid())
-  courseId       String
-  cost           Decimal //Price of course as per enrollment time, resets when payment aint complete
-  course         Course           @relation(fields: [courseId], references: [id], onDelete: Cascade)
-  studentId      String
-  student        Student          @relation(fields: [studentId], references: [id], onDelete: Cascade)
-  completionDate DateTime?
-  createdAt      DateTime         @default(now())
-  payment        Payment?
-  moduleProgress ModuleProgress[]
+  id                 String           @id @default(uuid())
+  courseId           String
+  cost               Decimal //Price of course as per enrollment time, resets when payment aint complete
+  course             Course           @relation(fields: [courseId], references: [id], onDelete: Cascade)
+  studentId          String
+  student            Student          @relation(fields: [studentId], references: [id], onDelete: Cascade)
+  completionDate     DateTime?
+  createdAt          DateTime         @default(now())
+  payment            Payment?
+  moduleProgress     ModuleProgress[]
+  progressPercentage Decimal          @default(0.0)
 }
 
 model ModuleProgress {
