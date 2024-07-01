@@ -113,7 +113,7 @@ export const enroll = async (
     return res.json({
       detail:
         "Enrollment succesfull, KIndly complete payment to access course content",
-        enrollment:enrollemt,
+      enrollment: enrollemt,
     });
   } catch (error) {
     next(error);
@@ -235,6 +235,21 @@ export const getMyEnrollments = async (
       where: { studentId: student.profile.student.id },
       include: {
         course: true,
+        moduleProgress: {
+          select: {
+            id: true,
+            moduleId: true,
+            contents: {
+              select: {
+                id: true,
+                contentId: true,
+                createdAt: true,
+              },
+            },
+            createdAt: true,
+            _count: true,
+          },
+        },
         payment: {
           select: {
             amount: true,
@@ -252,6 +267,80 @@ export const getMyEnrollments = async (
       },
     });
     return res.json({ results: enrollments });
+  } catch (error) {
+    next(error);
+  }
+};
+
+export const progress = async (
+  req: Request,
+  res: Response,
+  next: NextFunction
+) => {
+  /**
+   * Assetain enrollment exist
+   * Assertain enrollment payment is complete
+   * Asertain enrollment course module and asociated content exist
+   * Creates a progress if none already exist else throws an error
+   */
+  try {
+    const contentId = req.params.contentId;
+    const moduleId = req.params.moduleId;
+    const enrollmentId = req.params.enrollmentId;
+
+    // Assertain paid course enrollemnt exist with asociatted modules and content and try create progress
+    const enrollment = await EnrollmentModel.update({
+      where: {
+        id: enrollmentId,
+        course: {
+          modules: {
+            some: {
+              id: moduleId,
+              content: {
+                some: {
+                  id: contentId,
+                },
+              },
+            },
+          },
+        },
+        payment: {
+          complete: true,
+        },
+      },
+      include: {
+        course: true,
+        moduleProgress: {
+          select: {
+            id: true,
+            moduleId: true,
+            contents: {
+              select: {
+                id: true,
+                contentId: true,
+                createdAt: true,
+              },
+            },
+            createdAt: true,
+            _count: true,
+          },
+        },
+      },
+      data: {
+        moduleProgress: {
+          create: {
+            moduleId,
+            contents: {
+              create: {
+                contentId,
+              },
+            },
+          },
+        },
+      },
+    });
+
+    return res.json(enrollment);
   } catch (error) {
     next(error);
   }

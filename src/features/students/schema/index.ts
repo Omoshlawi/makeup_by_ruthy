@@ -6,3 +6,8 @@ export const enrollmentValidationShema = z.object({
     message: "Invalid phone number",
   }),
 });
+
+export const progressValidationSchema = z.object({
+  module: z.string().uuid("Invalid module"),
+  content: z.string().uuid("Invalid content"),
+});

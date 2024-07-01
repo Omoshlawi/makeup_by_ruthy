@@ -129,29 +129,31 @@ model CourseTopic {
 }
 
 model Module {
-  id        String    @id @default(uuid())
-  courseId  String
-  order     Int
-  title     String
-  overview  String?   @db.Text
-  course    Course    @relation(fields: [courseId], onDelete: Cascade, references: [id])
-  createdAt DateTime  @default(now())
-  updatedAt DateTime  @updatedAt
-  content   Content[]
+  id             String           @id @default(uuid())
+  courseId       String
+  order          Int
+  title          String
+  overview       String?          @db.Text
+  course         Course           @relation(fields: [courseId], onDelete: Cascade, references: [id])
+  createdAt      DateTime         @default(now())
+  updatedAt      DateTime         @updatedAt
+  content        Content[]
+  moduleProgress ModuleProgress[]
 
   @@unique([courseId, title])
 }
 
 model Content {
-  id        String      @id @default(uuid())
-  moduleId  String
-  order     Int
-  title     String
-  type      ContentType
-  resource  String      @db.Text
-  module    Module      @relation(fields: [moduleId], onDelete: Cascade, references: [id])
-  createdAt DateTime    @default(now())
-  updatedAt DateTime    @updatedAt
+  id              String                  @id @default(uuid())
+  moduleId        String
+  order           Int
+  title           String
+  type            ContentType
+  resource        String                  @db.Text
+  module          Module                  @relation(fields: [moduleId], onDelete: Cascade, references: [id])
+  createdAt       DateTime                @default(now())
+  updatedAt       DateTime                @updatedAt
+  contentProgress ModuleContentProgress[]
 
   @@unique([moduleId, title])
 }
@@ -169,16 +171,39 @@ model Review {
 }
 
 model Enrollment {
-  id             String    @id @default(uuid())
+  id             String           @id @default(uuid())
   courseId       String
   cost           Decimal //Price of course as per enrollment time, resets when payment aint complete
-  course         Course    @relation(fields: [courseId], references: [id], onDelete: Cascade)
+  course         Course           @relation(fields: [courseId], references: [id], onDelete: Cascade)
   studentId      String
-  student        Student   @relation(fields: [studentId], references: [id], onDelete: Cascade)
-  progress       Json?
+  student        Student          @relation(fields: [studentId], references: [id], onDelete: Cascade)
   completionDate DateTime?
-  createdAt      DateTime  @default(now())
+  createdAt      DateTime         @default(now())
   payment        Payment?
+  moduleProgress ModuleProgress[]
+}
+
+model ModuleProgress {
+  id           Int                     @id @default(autoincrement())
+  enrollmentId String
+  enrollement  Enrollment              @relation(fields: [enrollmentId], onDelete: Cascade, references: [id])
+  moduleId     String
+  module       Module                  @relation(fields: [moduleId], onDelete: Cascade, references: [id])
+  createdAt    DateTime                @default(now())
+  contents     ModuleContentProgress[]
+
+  @@unique([enrollmentId, moduleId])
+}
+
+model ModuleContentProgress {
+  id               Int            @id @default(autoincrement())
+  moduleProgressId Int
+  moduleProgress   ModuleProgress @relation(fields: [moduleProgressId], onDelete: Cascade, references: [id])
+  contentId        String
+  content          Content        @relation(fields: [contentId], onDelete: Cascade, references: [id])
+  createdAt        DateTime       @default(now())
+
+  @@unique([contentId, moduleProgressId])
 }
 
 model Payment {
