@@ -10,8 +10,6 @@ export async function handleErrors(
   res: Response,
   next: NextFunction
 ) {
-  console.log(JSON.stringify(error));
-
   executeRollBackTasks(req);
   if (error.status) {
     return res.status(error.status).json(error.errors);

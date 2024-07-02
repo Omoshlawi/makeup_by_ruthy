@@ -5,6 +5,7 @@ import {
   completeEnrollmentPayement,
   getMyEnrollments,
   progress,
+  getMyEnrollment,
 } from "../controllers";
 import { requireAuthenticated } from "@/middlewares";
 import { requireStudent } from "@/middlewares/require_roles";
@@ -28,6 +29,12 @@ router.get(
   "/enrollments",
   [requireAuthenticated, requireStudent],
   getMyEnrollments
+);
+
+router.get(
+  "/enrollments/:id",
+  [validateUUIDPathParam("id"), requireAuthenticated, requireStudent],
+  getMyEnrollment
 );
 
 router.get(

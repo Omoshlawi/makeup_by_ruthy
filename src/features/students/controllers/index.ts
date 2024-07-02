@@ -247,7 +247,7 @@ export const getMyEnrollments = async (
               },
             },
             createdAt: true,
-            _count: true,
+            // _count: true,
           },
         },
         payment: {
@@ -267,6 +267,65 @@ export const getMyEnrollments = async (
       },
     });
     return res.json({ results: enrollments });
+  } catch (error) {
+    next(error);
+  }
+};
+
+export const getMyEnrollment = async (
+  req: Request,
+  res: Response,
+  next: NextFunction
+) => {
+  try {
+    const student = (req as any).user as User & {
+      profile: Profile & { student: Student };
+    };
+    const enrollments = await EnrollmentModel.findUniqueOrThrow({
+      where: { studentId: student.profile.student.id, id: req.params.id },
+      include: {
+        course: {
+          include: {
+            instructor: true,
+            modules: {
+              include: {
+                content: true,
+              },
+            },
+          },
+        },
+        moduleProgress: {
+          select: {
+            id: true,
+            moduleId: true,
+            contents: {
+              select: {
+                id: true,
+                contentId: true,
+                createdAt: true,
+              },
+            },
+            createdAt: true,
+            // _count: true,
+          },
+        },
+        payment: {
+          select: {
+            amount: true,
+            mpesareceiptNumber: true,
+            complete: true,
+            phoneNumber: true,
+            createdAt: true,
+            updatedAt: true,
+            id: true,
+            transactionDate: true,
+            enrollmentId: true,
+            description: true,
+          },
+        },
+      },
+    });
+    return res.json(enrollments);
   } catch (error) {
     next(error);
   }
@@ -335,11 +394,23 @@ export const progress = async (
       },
       data: {
         moduleProgress: {
-          create: {
-            moduleId,
-            contents: {
-              create: {
-                contentId,
+          upsert: {
+            where: {
+              enrollmentId_moduleId: { enrollmentId, moduleId },
+            },
+            create: {
+              moduleId,
+              contents: {
+                create: {
+                  contentId,
+                },
+              },
+            },
+            update: {
+              contents: {
+                create: {
+                  contentId,
+                },
               },
             },
           },
@@ -360,17 +431,58 @@ export const progress = async (
       totalContents > 0 ? (completedContents / totalContents) * 100 : 0.0;
 
     // Update progress percentage
-    await EnrollmentModel.update({
+    enrollment = await EnrollmentModel.update({
       where: {
         id: enrollmentId,
       },
       data: {
         progressPercentage,
       },
+      include: {
+        course: {
+          include: {
+            instructor: true,
+            modules: {
+              include: {
+                content: true,
+              },
+            },
+          },
+        },
+        moduleProgress: {
+          select: {
+            id: true,
+            moduleId: true,
+            contents: {
+              select: {
+                id: true,
+                contentId: true,
+                createdAt: true,
+              },
+            },
+            createdAt: true,
+            // _count: true,
+          },
+        },
+        payment: {
+          select: {
+            amount: true,
+            mpesareceiptNumber: true,
+            complete: true,
+            phoneNumber: true,
+            createdAt: true,
+            updatedAt: true,
+            id: true,
+            transactionDate: true,
+            enrollmentId: true,
+            description: true,
+          },
+        },
+      },
     });
 
     // Return updated enrollment with progresses
-    return res.json({ ...enrollment, progressPercentage });
+    return res.json(enrollment);
   } catch (error) {
     next(error);
   }
