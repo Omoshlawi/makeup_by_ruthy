@@ -13,6 +13,7 @@ import fileUploader from "@/middlewares/file_uploader";
 import uploader from "@/middlewares/upload";
 import { validateUUIDPathParam } from "@/middlewares/validators";
 import modulesRouter from "./modules";
+import testRouter from "./courseTests";
 
 const router = Router();
 router.get("/", getCourses);
@@ -55,4 +56,7 @@ router.use(
   validateUUIDPathParam("courseId"),
   modulesRouter
 );
+
+router.use("/:courseId/tests", [validateUUIDPathParam("courseId"), authenticate], testRouter);
+
 export default router;

@@ -12,6 +12,21 @@ export const courseSearchSchema = z.object({
   pageSize: z.number({ coerce: true }).min(1).optional().default(10),
 });
 
+export const courseTestQuestionValidationSChema = z.object({
+  question: z.string().min(1, "Required"),
+  choices: z.array(
+    z.object({
+      choice: z.string().min(1, "Required"),
+      answer: z.boolean().optional(),
+    })
+  ),
+});
+
+export const courseTestValidationSchema = z.object({
+  title: z.string().min(1, "Required"),
+  questions: z.array(courseTestQuestionValidationSChema),
+});
+
 export const topicValidationSchema = z.object({
   name: z.string().max(191).min(1, "Topic name required"),
   overview: z.string().optional(),

@@ -230,24 +230,30 @@ model Payment {
 model Test {
   id        String         @id @unique @default(uuid())
   title     String
-  courseId  String
-  course    Course         @relation(fields: [courseId], onDelete: Cascade, references: [id])
-  moduleId  String
-  module    Module         @relation(fields: [moduleId], onDelete: Cascade, references: [id])
+  courseId  String?
+  course    Course?        @relation(fields: [courseId], onDelete: Cascade, references: [id])
+  moduleId  String?
+  module    Module?        @relation(fields: [moduleId], onDelete: Cascade, references: [id])
   createdAt DateTime       @default(now())
   updatedAt DateTime       @updatedAt
   questions TestQuestion[]
   attempts  TestAttempt[]
+
+  @@unique([title, courseId])
+  @@unique([title, moduleId])
 }
 
 model TestQuestion {
   id        String                @id @unique @default(uuid())
   testId    String
   test      Test                  @relation(fields: [testId], onDelete: Cascade, references: [id])
+  question  String
   createdAt DateTime              @default(now())
   updatedAt DateTime              @updatedAt
   choices   TestQuestionChoice[]
   attempt   TestAttemptQuestion[]
+
+  @@unique([testId, question])
 }
 
 model TestQuestionChoice {
@@ -259,6 +265,8 @@ model TestQuestionChoice {
   createdAt  DateTime              @default(now())
   updatedAt  DateTime              @updatedAt
   attempt    TestAttemptQuestion[]
+
+  @@unique([questionId, choice])
 }
 
 model TestAttempt {

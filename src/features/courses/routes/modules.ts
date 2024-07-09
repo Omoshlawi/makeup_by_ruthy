@@ -8,6 +8,7 @@ import contentRouter from "./content";
 import authenticate from "@/middlewares/authentication";
 import { requireInstructor } from "@/middlewares/require_roles";
 import { validateUUIDPathParam } from "@/middlewares/validators";
+import moduleTest from "./moduleTests";
 
 const router = Router({ mergeParams: true });
 router.post("/", [authenticate, requireInstructor], addCourseModule);
@@ -25,5 +26,11 @@ router.use(
   "/:moduleId/content",
   [validateUUIDPathParam("moduleId"), authenticate, requireInstructor],
   contentRouter
+);
+
+router.use(
+  "/:moduleId/test",
+  [validateUUIDPathParam("moduleId"), authenticate],
+  moduleTest
 );
 export default router;
