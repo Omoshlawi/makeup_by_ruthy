@@ -115,6 +115,7 @@ model Course {
   modules        Module[]
   topics         CourseTopic[]
   reviews        Review[]
+  tests          Test[]
 }
 
 model CourseTopic {
@@ -139,6 +140,7 @@ model Module {
   updatedAt      DateTime         @updatedAt
   content        Content[]
   moduleProgress ModuleProgress[]
+  tests          Test[]
 
   @@unique([courseId, title])
 }
@@ -223,6 +225,61 @@ model Payment {
   phoneNumber        String?
   createdAt          DateTime   @default(now())
   updatedAt          DateTime   @updatedAt
+}
+
+model Test {
+  id        String         @id @unique @default(uuid())
+  title     String
+  courseId  String
+  course    Course         @relation(fields: [courseId], onDelete: Cascade, references: [id])
+  moduleId  String
+  module    Module         @relation(fields: [moduleId], onDelete: Cascade, references: [id])
+  createdAt DateTime       @default(now())
+  updatedAt DateTime       @updatedAt
+  questions TestQuestion[]
+  attempts  TestAttempt[]
+}
+
+model TestQuestion {
+  id        String                @id @unique @default(uuid())
+  testId    String
+  test      Test                  @relation(fields: [testId], onDelete: Cascade, references: [id])
+  createdAt DateTime              @default(now())
+  updatedAt DateTime              @updatedAt
+  choices   TestQuestionChoice[]
+  attempt   TestAttemptQuestion[]
+}
+
+model TestQuestionChoice {
+  id         String                @id @unique @default(uuid())
+  questionId String
+  question   TestQuestion          @relation(fields: [questionId], onDelete: Cascade, references: [id])
+  choice     String
+  answer     Boolean               @default(false)
+  createdAt  DateTime              @default(now())
+  updatedAt  DateTime              @updatedAt
+  attempt    TestAttemptQuestion[]
+}
+
+model TestAttempt {
+  id               String                @id @unique @default(uuid())
+  testId           String
+  test             Test                  @relation(fields: [testId], onDelete: Cascade, references: [id])
+  score            Decimal               @default(0.0)
+  createdAt        DateTime              @default(now())
+  attemptQuestions TestAttemptQuestion[]
+}
+
+model TestAttemptQuestion {
+  id         String             @id @unique @default(uuid())
+  attemptId  String
+  attempt    TestAttempt        @relation(fields: [attemptId], onDelete: Cascade, references: [id])
+  questionId String
+  question   TestQuestion       @relation(fields: [questionId], references: [id], onDelete: Cascade)
+  choiceId   String
+  choice     TestQuestionChoice @relation(fields: [choiceId], onDelete: Cascade, references: [id])
+
+  @@unique([attemptId, questionId, choiceId])
 }
 
 enum Gender {
