@@ -1,5 +1,5 @@
 import { NextFunction, Request, Response } from "express";
-import { CourseModel } from "../models";
+import { courseInclude, CourseModel } from "../models";
 import { APIException } from "@/shared/exceprions";
 import { courseSearchSchema, courseValidationSchema } from "../schema";
 import { Instructor, Profile, User } from "@prisma/client";
@@ -68,13 +68,7 @@ export const getCourses = async (
       skip: paginate(pageSize, page),
       take: pageSize,
       orderBy: { createdAt: "asc" },
-      include: {
-        _count: true,
-        instructor: true,
-        modules: { include: { content: true } },
-        reviews: true,
-        topics: { include: { topic: true } },
-      },
+      include: courseInclude,
     });
     return res.json({ results: courses });
   } catch (error) {
@@ -90,13 +84,7 @@ export const getCourse = async (
   try {
     const course = await CourseModel.findUniqueOrThrow({
       where: { id: req.params.id },
-      include: {
-        _count: true,
-        instructor: true,
-        modules: { include: { content: true } },
-        reviews: true,
-        topics: { include: { topic: true } },
-      },
+      include: courseInclude,
     });
     return res.json(course);
   } catch (error) {
@@ -157,13 +145,7 @@ export const updateCourse = async (
     if (!validation.success)
       throw new APIException(400, validation.error.format());
     const topic = await CourseModel.update({
-      include: {
-        _count: true,
-        instructor: true,
-        modules: { include: { content: true } },
-        reviews: true,
-        topics: { include: { topic: true } },
-      },
+      include: courseInclude,
       data: {
         ...{
           ...validation.data,

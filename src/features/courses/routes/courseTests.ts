@@ -14,7 +14,7 @@ const router = Router({ mergeParams: true });
 router.get("/", getCourseTests);
 router.post("/", [requireInstructor], addCourseTest);
 router.get("/:testId", [validateUUIDPathParam("testId")], getCourseTest);
-router.put("/:testId", [validateUUIDPathParam("testId")], updateCourseTest);
+router.put("/:testId", [validateUUIDPathParam("testId"), requireInstructor], updateCourseTest);
 router.delete(
   "/:testId",
   [validateUUIDPathParam("testId"), requireInstructor],
