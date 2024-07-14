@@ -9,6 +9,7 @@ import {
   getTests,
   updateTest,
 } from "../controllers/tests";
+import moduleTestQuestionRouter from "./testQuestions";
 
 const router = Router({ mergeParams: true });
 
@@ -24,6 +25,12 @@ router.put(
   "/:testId",
   [validateUUIDPathParam("testId"), requireInstructor],
   deleteTest
+);
+
+router.use(
+  "/:testId/questions",
+  [validateUUIDPathParam("testId")],
+  moduleTestQuestionRouter
 );
 
 export default router;
