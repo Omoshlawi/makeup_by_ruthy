@@ -67,36 +67,74 @@ export const addTestQuestion = async (
       where: {
         id: courseId,
         instructorId: user.profile.instructor.id,
-        modules: {
-          some: {
-            id: moduleId,
-          },
-        },
-        tests: {
-          some: {
-            id: testId,
-          },
-        },
+        modules: isModuleTest
+          ? {
+              some: {
+                id: moduleId,
+                tests: {
+                  some: {
+                    id: testId,
+                  },
+                },
+              },
+            }
+          : undefined,
+        tests: isModuleTest
+          ? undefined
+          : {
+              some: {
+                id: testId,
+              },
+            },
       },
       data: {
-        tests: {
-          update: {
-            where: { id: testId },
-            data: {
-              questions: {
-                create: {
-                  question,
-                  choices: {
-                    createMany: {
-                      skipDuplicates: true,
-                      data: choices,
+        tests: isModuleTest
+          ? undefined
+          : {
+              update: {
+                where: { id: testId },
+                data: {
+                  questions: {
+                    create: {
+                      question,
+                      choices: {
+                        createMany: {
+                          skipDuplicates: true,
+                          data: choices,
+                        },
+                      },
                     },
                   },
                 },
               },
             },
-          },
-        },
+        modules: isModuleTest
+          ? {
+              update: {
+                where: { id: moduleId },
+                data: {
+                  tests: {
+                    update: {
+                      where: { id: testId },
+                      data: {
+                        questions: {
+                          create: {
+                            question,
+                            choices: {
+                              createMany: {
+                                skipDuplicates: true,
+                                data: choices,
+                              },
+                            },
+                          },
+                        },
+                      },
+                    },
+                  },
+                },
+              },
+            }
+          : undefined,
       },
       include: courseInclude,
     });
@@ -135,45 +173,111 @@ export const updateTestQuestions = async (
       where: {
         id: courseId,
         instructorId: user.profile.instructor.id,
-        modules: {
-          some: {
-            id: moduleId,
-          },
-        },
-        tests: {
-          some: {
-            id: testId,
-          },
-        },
+        modules: isModuleTest
+          ? {
+              some: {
+                id: moduleId,
+                tests: {
+                  some: {
+                    id: testId,
+                    questions: {
+                      some: {
+                        id: questionId,
+                      },
+                    },
+                  },
+                },
+              },
+            }
+          : undefined,
+        tests: isModuleTest
+          ? undefined
+          : {
+              some: {
+                id: testId,
+                questions: {
+                  some: {
+                    id: questionId,
+                  },
+                },
+              },
+            },
       },
       data: {
-        tests: {
-          update: {
-            where: { id: testId },
-            data: {
-              questions: {
-                update: {
-                  where: { id: questionId },
-                  data: {
-                    question,
-                    choices: {
-                      upsert: choices.map((ch) => ({
-                        where: {
-                          questionId_choice: { questionId, choice: ch.choice },
+        tests: isModuleTest
+          ? undefined
+          : {
+              update: {
+                where: { id: testId },
+                data: {
+                  questions: {
+                    update: {
+                      where: { id: questionId },
+                      data: {
+                        question,
+                        choices: {
+                          upsert: choices.map((ch) => ({
+                            where: {
+                              questionId_choice: {
+                                questionId,
+                                choice: ch.choice,
+                              },
+                            },
+                            create: { choice: ch.choice, answer: ch.answer },
+                            update: {
+                              choice: ch.choice,
+                              answer: ch.answer,
+                            },
+                          })),
                         },
-                        create: { choice: ch.choice, answer: ch.answer },
-                        update: {
-                          choice: ch.choice,
-                          answer: ch.answer,
-                        },
-                      })),
+                      },
                     },
                   },
                 },
               },
             },
-          },
-        },
+        modules: isModuleTest
+          ? {
+              update: {
+                where: { id: moduleId },
+                data: {
+                  tests: {
+                    update: {
+                      where: { id: testId },
+                      data: {
+                        questions: {
+                          update: {
+                            where: { id: questionId },
+                            data: {
+                              question,
+                              choices: {
+                                upsert: choices.map((ch) => ({
+                                  where: {
+                                    questionId_choice: {
+                                      questionId,
+                                      choice: ch.choice,
+                                    },
+                                  },
+                                  create: {
+                                    choice: ch.choice,
+                                    answer: ch.answer,
+                                  },
+                                  update: {
+                                    choice: ch.choice,
+                                    answer: ch.answer,
+                                  },
+                                })),
+                              },
+                            },
+                          },
+                        },
+                      },
+                    },
+                  },
+                },
+              },
+            }
+          : undefined,
       },
       include: courseInclude,
     });
@@ -211,25 +315,65 @@ export const deleteTestQuestions = async (
       where: {
         id: courseId,
         instructorId: user.profile.instructor.id,
-        modules: {
-          some: {
-            id: moduleId,
-          },
-        },
-        tests: {
-          some: {
-            id: testId,
-          },
-        },
+        modules: isModuleTest
+          ? {
+              some: {
+                id: moduleId,
+                tests: {
+                  some: {
+                    id: testId,
+                    questions: {
+                      some: {
+                        id: questionId,
+                      },
+                    },
+                  },
+                },
+              },
+            }
+          : undefined,
+        tests: isModuleTest
+          ? undefined
+          : {
+              some: {
+                id: testId,
+                questions: {
+                  some: {
+                    id: questionId,
+                  },
+                },
+              },
+            },
       },
       data: {
-        tests: {
+        tests: isModuleTest
+          ? undefined
+          : {
+              update: {
+                where: { id: testId },
+                data: {
+                  questions: {
+                    delete: {
+                      id: questionId,
+                    },
+                  },
+                },
+              },
+            },
+        modules: {
           update: {
-            where: { id: testId },
+            where: { id: moduleId },
             data: {
-              questions: {
-                delete: {
-                  id: questionId,
+              tests: {
+                update: {
+                  where: { id: testId },
+                  data: {
+                    questions: {
+                      delete: {
+                        id: questionId,
+                      },
+                    },
+                  },
                 },
               },
             },
