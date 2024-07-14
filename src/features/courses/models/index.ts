@@ -17,7 +17,20 @@ export const courseInclude = {
     },
   },
   instructor: true,
-  modules: { include: { content: true } },
+  modules: {
+    include: {
+      content: true,
+      tests: {
+        include: {
+          questions: {
+            include: {
+              choices: true,
+            },
+          },
+        },
+      },
+    },
+  },
   reviews: true,
   topics: { include: { topic: true } },
 };

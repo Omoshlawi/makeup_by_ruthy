@@ -1,28 +1,29 @@
 import { Router } from "express";
-import {
-  addCourseModuleTest,
-  deleteCourseModuleTest,
-  getCourseModuleTest,
-  getCourseModuleTests,
-  updateCourseModuleTest,
-} from "../controllers/moduleTests";
+
 import { requireInstructor } from "@/middlewares/require_roles";
 import { validateUUIDPathParam } from "@/middlewares/validators";
+import {
+  addTest,
+  deleteTest,
+  getTest,
+  getTests,
+  updateTest,
+} from "../controllers/tests";
 
 const router = Router({ mergeParams: true });
 
-router.get("/", getCourseModuleTests);
-router.post("/", [requireInstructor], addCourseModuleTest);
-router.get("/:testId", [validateUUIDPathParam("testId")], getCourseModuleTest);
+router.get("/", getTests);
+router.post("/", [requireInstructor], addTest);
+router.get("/:testId", [validateUUIDPathParam("testId")], getTest);
 router.put(
   "/:testId",
   [validateUUIDPathParam("testId"), requireInstructor],
-  updateCourseModuleTest
+  updateTest
 );
 router.put(
   "/:testId",
   [validateUUIDPathParam("testId"), requireInstructor],
-  deleteCourseModuleTest
+  deleteTest
 );
 
 export default router;

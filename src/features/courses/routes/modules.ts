@@ -29,7 +29,7 @@ router.use(
 );
 
 router.use(
-  "/:moduleId/test",
+  "/:moduleId/tests",
   [validateUUIDPathParam("moduleId"), authenticate],
   moduleTest
 );
