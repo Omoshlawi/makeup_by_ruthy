@@ -114,7 +114,7 @@ export const updateCourseTest = async (
     if (!validation.success)
       throw new APIException(400, validation.error.format());
 
-    const { questions, title } = validation.data;
+    const { title } = validation.data;
 
     const course = await CourseModel.update({
       where: {
@@ -134,48 +134,10 @@ export const updateCourseTest = async (
           },
         },
       },
-      include: {
-        tests: true,
-      },
+      include: courseInclude,
     });
 
-    const questionsUpdateTasks = await Promise.allSettled([
-      questions.map((q) =>
-        TestQuestionModel.upsert({
-          where: {
-            testId_question: { testId, question: q.question },
-            question: q.question,
-            testId,
-          },
-          create: {
-            question: q.question,
-            testId,
-            choices: {
-              createMany: {
-                skipDuplicates: true,
-                data: q.choices,
-              },
-            },
-          },
-          update: {
-            question: q.question,
-            choices: {
-              createMany: {
-                skipDuplicates: true,
-                data: q.choices,
-              },
-            },
-          },
-        })
-      ),
-    ]);
-
-    return res.json(
-      await CourseModel.findUnique({
-        where: { id: courseId },
-        include: courseInclude,
-      })
-    );
+    return res.json(course);
   } catch (error) {
     next(error);
   }
@@ -187,7 +149,27 @@ export const deleteCourseTest = async (
   next: NextFunction
 ) => {
   try {
-    return res.json({ results: req.params });
+    const courseId = req.params.courseId;
+    const testId = req.params.testId;
+    const user: User & { profile: Profile & { instructor: Instructor } } = (
+      req as any
+    ).user;
+    const course = await CourseModel.update({
+      where: {
+        id: courseId,
+        instructorId: user.profile.instructor.id,
+        tests: {
+          some: { id: testId },
+        },
+      },
+      data: {
+        tests: {
+          delete: { id: testId },
+        },
+      },
+      include: courseInclude,
+    });
+    return res.json(course);
   } catch (error) {
     next(error);
   }
