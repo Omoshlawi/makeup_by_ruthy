@@ -304,13 +304,6 @@ export const deleteTestQuestions = async (
       req as any
     ).user;
 
-    const validation = await testQuestionValidationSChema.safeParseAsync(
-      req.body
-    );
-    if (!validation.success)
-      throw new APIException(400, validation.error.format());
-
-    const { choices, question } = validation.data;
     const course = await CourseModel.update({
       where: {
         id: courseId,

@@ -26,7 +26,7 @@ export const testQuestionValidationSChema = z.object({
 
 export const courseTestValidationSchema = z.object({
   title: z.string().min(1, "Required"),
-  questions: z.array(testQuestionValidationSChema),
+  questions: z.array(testQuestionValidationSChema).optional().default([]),
 });
 
 export const topicValidationSchema = z.object({

@@ -13,7 +13,7 @@ import fileUploader from "@/middlewares/file_uploader";
 import uploader from "@/middlewares/upload";
 import { validateUUIDPathParam } from "@/middlewares/validators";
 import modulesRouter from "./modules";
-import testRouter from "./courseTests";
+import testRouter from "./tests";
 
 const router = Router();
 router.get("/", getCourses);

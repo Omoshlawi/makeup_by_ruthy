@@ -64,6 +64,7 @@ export const addTest = async (
     const validation = await courseTestValidationSchema.safeParseAsync(
       req.body
     );
+
     const user: User & { profile: Profile & { instructor: Instructor } } = (
       req as any
     ).user;
@@ -76,12 +77,15 @@ export const addTest = async (
       where: {
         id: courseId,
         instructorId: user.profile.instructor.id,
-        modules: {
-          some: {
-            id: moduleId,
-          },
-        },
+        modules: isModuleTest
+          ? {
+              some: {
+                id: moduleId,
+              },
+            }
+          : undefined,
       },
+
       data: {
         tests: isModuleTest
           ? undefined

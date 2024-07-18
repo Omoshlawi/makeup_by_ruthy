@@ -184,6 +184,7 @@ model Enrollment {
   payment            Payment?
   moduleProgress     ModuleProgress[]
   progressPercentage Decimal          @default(0.0)
+  attempts           TestAttempt[]
 }
 
 model ModuleProgress {
@@ -271,6 +272,8 @@ model TestQuestionChoice {
 
 model TestAttempt {
   id               String                @id @unique @default(uuid())
+  enrollmentId     String
+  enrollement      Enrollment            @relation(fields: [enrollmentId], onDelete: Cascade, references: [id])
   testId           String
   test             Test                  @relation(fields: [testId], onDelete: Cascade, references: [id])
   score            Decimal               @default(0.0)

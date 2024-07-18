@@ -8,7 +8,7 @@ import contentRouter from "./content";
 import authenticate from "@/middlewares/authentication";
 import { requireInstructor } from "@/middlewares/require_roles";
 import { validateUUIDPathParam } from "@/middlewares/validators";
-import moduleTest from "./moduleTests";
+import moduleTest from "./tests";
 
 const router = Router({ mergeParams: true });
 router.post("/", [authenticate, requireInstructor], addCourseModule);
