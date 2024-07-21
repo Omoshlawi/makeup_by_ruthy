@@ -62,3 +62,14 @@ export const contentValidationSchema = z.object({
   resource: z.string().min(1, "Required"),
   order: z.number({ coerce: true }).min(-1).optional().default(-1),
 });
+
+export const attemptValidationSchema = z.object({
+  questions: z.array(
+    z.object({
+      question: z.string().uuid("Invalid questions"),
+      choices: z
+        .array(z.string().uuid("Invalid choice"))
+        .nonempty("You must provide atleast one choice"),
+    })
+  ),
+});

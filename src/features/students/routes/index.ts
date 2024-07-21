@@ -10,6 +10,7 @@ import {
 import { requireAuthenticated } from "@/middlewares";
 import { requireStudent } from "@/middlewares/require_roles";
 import { validateUUIDPathParam } from "@/middlewares/validators";
+import attemtsRouter from "./testAttempts";
 
 const router = Router();
 
@@ -35,6 +36,16 @@ router.get(
   "/enrollments/:id",
   [validateUUIDPathParam("id"), requireAuthenticated, requireStudent],
   getMyEnrollment
+);
+router.use(
+  "/enrollments/:enrollmentId/tests/:testId/attempts",
+  [
+    validateUUIDPathParam("enrollmentId"),
+    validateUUIDPathParam("testId"),
+    requireAuthenticated,
+    requireStudent,
+  ],
+  attemtsRouter
 );
 
 router.get(

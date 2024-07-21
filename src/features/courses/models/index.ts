@@ -6,6 +6,9 @@ export const TopicsMddel = prisma.topic;
 export const TestModel = prisma.test;
 export const TestQuestionModel = prisma.testQuestion;
 export const TestQuestionChoiceModel = prisma.testQuestionChoice;
+export const TestAttemptModel = prisma.testAttempt;
+export const TestAttemptQuestionModel = prisma.testAttemptQuestion;
+
 export const courseInclude = {
   tests: {
     include: {

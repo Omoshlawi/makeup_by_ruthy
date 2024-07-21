@@ -9,7 +9,7 @@ import {
 import { validateUUIDPathParam } from "@/middlewares/validators";
 import { requireInstructor } from "@/middlewares/require_roles";
 import testQuestionsRouter from "./testQuestions";
-import testAttempts from "./testAttempts";
+import testAttempts from "../../students/routes/testAttempts";
 
 const router = Router({ mergeParams: true });
 
@@ -30,10 +30,5 @@ router.use(
   "/:testId/questions",
   [validateUUIDPathParam("testId")],
   testQuestionsRouter
-);
-router.use(
-  "/:testId/attempts",
-  [validateUUIDPathParam("testId")],
-  testAttempts
 );
 export default router;
