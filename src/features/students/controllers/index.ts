@@ -3,7 +3,7 @@ import { Profile, Student, User } from "@prisma/client";
 import { NextFunction, Request, Response } from "express";
 import { enrollmentValidationShema } from "../schema";
 import { APIException } from "@/shared/exceprions";
-import { CourseModel } from "@/features/courses/models";
+import { courseInclude, CourseModel } from "@/features/courses/models";
 import { normalizePhoneNumber } from "@/utils/helpers";
 import { Mpesa } from "daraja.js";
 import { configuration } from "@/utils";
@@ -284,14 +284,10 @@ export const getMyEnrollment = async (
     const enrollments = await EnrollmentModel.findUniqueOrThrow({
       where: { studentId: student.profile.student.id, id: req.params.id },
       include: {
-        course: {
+        course: { include: courseInclude },
+        attempts: {
           include: {
-            instructor: true,
-            modules: {
-              include: {
-                content: true,
-              },
-            },
+            attemptQuestions: true, 
           },
         },
         moduleProgress: {

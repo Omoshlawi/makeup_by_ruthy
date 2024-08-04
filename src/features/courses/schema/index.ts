@@ -21,7 +21,10 @@ export const testQuestionValidationSChema = z.object({
         answer: z.boolean().optional(),
       })
     )
-    .nonempty("You must provide atleast one choice"),
+    .nonempty("You must provide atleast one choice")
+    .refine((choices) => choices.some((choice) => choice.answer === true), {
+      message: "At least one choice must be marked as the correct answer",
+    }),
 });
 
 export const courseTestValidationSchema = z.object({

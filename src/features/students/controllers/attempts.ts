@@ -232,8 +232,6 @@ export const deleteTestAttempts = async (
 
     return res.json(test);
   } catch (error) {
-    console.log(error);
-
     next(error);
   }
 };

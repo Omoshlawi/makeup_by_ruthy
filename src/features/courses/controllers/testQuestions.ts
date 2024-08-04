@@ -216,19 +216,10 @@ export const updateTestQuestions = async (
                       data: {
                         question,
                         choices: {
-                          upsert: choices.map((ch) => ({
-                            where: {
-                              questionId_choice: {
-                                questionId,
-                                choice: ch.choice,
-                              },
-                            },
-                            create: { choice: ch.choice, answer: ch.answer },
-                            update: {
-                              choice: ch.choice,
-                              answer: ch.answer,
-                            },
-                          })),
+                          deleteMany: {
+                            questionId,
+                          },
+                          createMany: { skipDuplicates: true, data: choices },
                         },
                       },
                     },
@@ -251,22 +242,13 @@ export const updateTestQuestions = async (
                             data: {
                               question,
                               choices: {
-                                upsert: choices.map((ch) => ({
-                                  where: {
-                                    questionId_choice: {
-                                      questionId,
-                                      choice: ch.choice,
-                                    },
-                                  },
-                                  create: {
-                                    choice: ch.choice,
-                                    answer: ch.answer,
-                                  },
-                                  update: {
-                                    choice: ch.choice,
-                                    answer: ch.answer,
-                                  },
-                                })),
+                                deleteMany: {
+                                  questionId,
+                                },
+                                createMany: {
+                                  skipDuplicates: true,
+                                  data: choices,
+                                },
                               },
                             },
                           },
