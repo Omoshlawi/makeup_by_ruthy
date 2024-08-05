@@ -37,3 +37,40 @@ export const courseInclude = {
   reviews: true,
   topics: { include: { topic: true } },
 };
+
+export const enrollmentInclude = {
+  course: { include: courseInclude },
+  attempts: {
+    include: {
+      attemptQuestions: true,
+    },
+  },
+  moduleProgress: {
+    select: {
+      id: true,
+      moduleId: true,
+      contents: {
+        select: {
+          id: true,
+          contentId: true,
+          createdAt: true,
+        },
+      },
+      createdAt: true,
+    },
+  },
+  payment: {
+    select: {
+      amount: true,
+      mpesareceiptNumber: true,
+      complete: true,
+      phoneNumber: true,
+      createdAt: true,
+      updatedAt: true,
+      id: true,
+      transactionDate: true,
+      enrollmentId: true,
+      description: true,
+    },
+  },
+}

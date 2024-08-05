@@ -1,8 +1,14 @@
 import { NextFunction, Request, Response } from "express";
-import { TestAttemptModel, TestModel } from "../../courses/models";
+import {
+  courseInclude,
+  enrollmentInclude,
+  TestAttemptModel,
+  TestModel,
+} from "../../courses/models";
 import { Profile, Student, User } from "@prisma/client";
 import { attemptValidationSchema } from "../../courses/schema";
 import { APIException } from "@/shared/exceprions";
+import { EnrollmentModel } from "../models";
 
 export const getTestAttempts = async (
   req: Request,
@@ -152,24 +158,14 @@ export const addTestAttempts = async (
           },
         },
       },
-      include: {
-        questions: {
-          include: {
-            choices: true,
-          },
-        },
-        attempts: {
-          include: {
-            attemptQuestions: {
-              include: { choice: true, question: true },
-            },
-            enrollement: true,
-          },
-        },
-      },
     });
 
-    return res.json(createdAttempt);
+    return res.json(
+      await EnrollmentModel.findFirstOrThrow({
+        where: { id: enrollmentId },
+        include: enrollmentInclude,
+      })
+    );
   } catch (error) {
     next(error);
   }

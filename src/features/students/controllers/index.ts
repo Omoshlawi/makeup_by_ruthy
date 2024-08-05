@@ -1,15 +1,15 @@
+import {
+  CourseModel,
+  enrollmentInclude
+} from "@/features/courses/models";
 import { UserModel } from "@/features/users/models";
+import { triggerStkPush } from "@/services/mpesa";
+import { APIException } from "@/shared/exceprions";
+import { normalizePhoneNumber } from "@/utils/helpers";
 import { Profile, Student, User } from "@prisma/client";
 import { NextFunction, Request, Response } from "express";
-import { enrollmentValidationShema } from "../schema";
-import { APIException } from "@/shared/exceprions";
-import { courseInclude, CourseModel } from "@/features/courses/models";
-import { normalizePhoneNumber } from "@/utils/helpers";
-import { Mpesa } from "daraja.js";
-import { configuration } from "@/utils";
-import { PaymentModel } from "@/features/payments/models";
 import { EnrollmentModel } from "../models";
-import { triggerStkPush } from "@/services/mpesa";
+import { enrollmentValidationShema } from "../schema";
 
 export const getStudents = async (
   req: Request,
@@ -283,43 +283,7 @@ export const getMyEnrollment = async (
     };
     const enrollments = await EnrollmentModel.findUniqueOrThrow({
       where: { studentId: student.profile.student.id, id: req.params.id },
-      include: {
-        course: { include: courseInclude },
-        attempts: {
-          include: {
-            attemptQuestions: true, 
-          },
-        },
-        moduleProgress: {
-          select: {
-            id: true,
-            moduleId: true,
-            contents: {
-              select: {
-                id: true,
-                contentId: true,
-                createdAt: true,
-              },
-            },
-            createdAt: true,
-            // _count: true,
-          },
-        },
-        payment: {
-          select: {
-            amount: true,
-            mpesareceiptNumber: true,
-            complete: true,
-            phoneNumber: true,
-            createdAt: true,
-            updatedAt: true,
-            id: true,
-            transactionDate: true,
-            enrollmentId: true,
-            description: true,
-          },
-        },
-      },
+      include: enrollmentInclude,
     });
     return res.json(enrollments);
   } catch (error) {
