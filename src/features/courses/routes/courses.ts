@@ -14,6 +14,7 @@ import uploader from "@/middlewares/upload";
 import { validateUUIDPathParam } from "@/middlewares/validators";
 import modulesRouter from "./modules";
 import testRouter from "./tests";
+import { getCourseReviews } from "@/features/students/controllers/reviews";
 
 const router = Router();
 router.get("/", getCourses);
@@ -57,6 +58,15 @@ router.use(
   modulesRouter
 );
 
-router.use("/:courseId/tests", [validateUUIDPathParam("courseId"), authenticate], testRouter);
+router.use(
+  "/:courseId/tests",
+  [validateUUIDPathParam("courseId"), authenticate],
+  testRouter
+);
+router.get(
+  "/:courseId/reviews",
+  [validateUUIDPathParam("courseId"), authenticate],
+  getCourseReviews
+);
 
 export default router;

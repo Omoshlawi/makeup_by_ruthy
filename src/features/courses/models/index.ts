@@ -34,7 +34,6 @@ export const courseInclude = {
       },
     },
   },
-  reviews: true,
   topics: { include: { topic: true } },
 };
 
@@ -73,4 +72,4 @@ export const enrollmentInclude = {
       description: true,
     },
   },
-}
+};

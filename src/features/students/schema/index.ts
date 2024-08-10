@@ -11,3 +11,8 @@ export const progressValidationSchema = z.object({
   module: z.string().uuid("Invalid module"),
   content: z.string().uuid("Invalid content"),
 });
+
+export const reviewValidationSchema = z.object({
+  rating: z.number(),
+  comment: z.string(),
+});

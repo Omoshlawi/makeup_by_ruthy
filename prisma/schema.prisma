@@ -56,7 +56,6 @@ model Student {
   createdAt       DateTime                @default(now())
   updatedAt       DateTime                @updatedAt
   enrollments     Enrollment[]
-  reviews         Review[]
   areasOfInterest StudentAreaOfInterest[]
 }
 
@@ -114,8 +113,8 @@ model Course {
   enrollments    Enrollment[]
   modules        Module[]
   topics         CourseTopic[]
-  reviews        Review[]
   tests          Test[]
+  averageRating  Float @default(0.0)//caches avg rating after every addition of review
 }
 
 model CourseTopic {
@@ -160,16 +159,15 @@ model Content {
   @@unique([moduleId, title])
 }
 
-model Review {
-  id        String   @id @default(uuid())
-  courseId  String
-  course    Course   @relation(fields: [courseId], references: [id], onDelete: Cascade)
-  studentId String
-  student   Student  @relation(fields: [studentId], references: [id], onDelete: Cascade)
-  rating    Float // You can use an integer or float depending on the granularity of the rating system
-  comment   String?  @db.Text
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+model CourseReview {
+  id           String     @id @default(uuid())
+  enrollmentId String
+  enrollment   Enrollment @relation(fields: [enrollmentId], references: [id], onDelete: Cascade)
+  rating       Float
+  comment      String?    @db.Text
+  active       Boolean    @default(true)
+  createdAt    DateTime   @default(now())
+  updatedAt    DateTime   @updatedAt
 }
 
 model Enrollment {
@@ -185,6 +183,7 @@ model Enrollment {
   moduleProgress     ModuleProgress[]
   progressPercentage Decimal          @default(0.0)
   attempts           TestAttempt[]
+  reviews            CourseReview[]
 }
 
 model ModuleProgress {

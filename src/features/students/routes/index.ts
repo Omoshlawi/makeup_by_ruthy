@@ -11,6 +11,7 @@ import { requireAuthenticated } from "@/middlewares";
 import { requireStudent } from "@/middlewares/require_roles";
 import { validateUUIDPathParam } from "@/middlewares/validators";
 import attemtsRouter from "./testAttempts";
+import reviewsRouter from "./reviews";
 
 const router = Router();
 
@@ -46,6 +47,11 @@ router.use(
     requireStudent,
   ],
   attemtsRouter
+);
+router.use(
+  "/enrollments/:enrollmentId/reviews",
+  [validateUUIDPathParam("enrollmentId"), requireAuthenticated, requireStudent],
+  reviewsRouter
 );
 
 router.get(
