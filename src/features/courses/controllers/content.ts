@@ -48,7 +48,6 @@ export const addModuleContent = async (
         _count: true,
         instructor: true,
         modules: { include: { content: true } },
-        reviews: true,
         topics: { include: { topic: true } },
       },
     });
@@ -113,7 +112,6 @@ export const updateModuleContent = async (
         _count: true,
         instructor: true,
         modules: { include: { content: true } },
-        reviews: true,
         topics: { include: { topic: true } },
       },
     });
@@ -158,7 +156,6 @@ export const deleteModuleContent = async (
         _count: true,
         instructor: true,
         modules: { include: { content: true } },
-        reviews: true,
         topics: { include: { topic: true } },
       },
     });

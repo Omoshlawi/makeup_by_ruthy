@@ -108,7 +108,6 @@ export const addCourse = async (
         _count: true,
         instructor: true,
         modules: { include: { content: true } },
-        reviews: true,
         topics: { include: { topic: true } },
       },
       data: {
@@ -185,7 +184,6 @@ export const deleteCourse = async (
         _count: true,
         instructor: true,
         modules: { include: { content: true } },
-        reviews: true,
         topics: { include: { topic: true } },
       },
     });
