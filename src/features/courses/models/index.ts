@@ -44,6 +44,7 @@ export const enrollmentInclude = {
       attemptQuestions: true,
     },
   },
+  reviews: true,
   moduleProgress: {
     select: {
       id: true,

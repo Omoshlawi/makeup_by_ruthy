@@ -1,7 +1,4 @@
-import {
-  CourseModel,
-  enrollmentInclude
-} from "@/features/courses/models";
+import { CourseModel, enrollmentInclude } from "@/features/courses/models";
 import { UserModel } from "@/features/users/models";
 import { triggerStkPush } from "@/services/mpesa";
 import { APIException } from "@/shared/exceprions";
@@ -196,6 +193,7 @@ export const completeEnrollmentPayement = async (
       },
       include: {
         course: true,
+        reviews: true,
         payment: {
           select: {
             amount: true,
@@ -235,6 +233,7 @@ export const getMyEnrollments = async (
       where: { studentId: student.profile.student.id },
       include: {
         course: true,
+        reviews: true,
         moduleProgress: {
           select: {
             id: true,
@@ -336,6 +335,7 @@ export const progress = async (
             },
           },
         },
+        reviews: true,
         moduleProgress: {
           select: {
             // id: true,

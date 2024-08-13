@@ -51,8 +51,6 @@ export const postReview = async (
         course: true,
       },
     });
-    console.log(enrollment);
-
     return res.json(enrollment.reviews[0]);
   } catch (error) {
     next(error);

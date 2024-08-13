@@ -14,5 +14,5 @@ export const progressValidationSchema = z.object({
 
 export const reviewValidationSchema = z.object({
   rating: z.number(),
-  comment: z.string(),
+  comment: z.string().min(1, "Invalid Comment").optional().nullable(),
 });
