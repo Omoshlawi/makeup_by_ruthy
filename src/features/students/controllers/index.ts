@@ -4,7 +4,11 @@ import { triggerStkPush } from "@/services/mpesa";
 import { APIException } from "@/shared/exceprions";
 import { normalizePhoneNumber } from "@/utils/helpers";
 import { Profile, Student, User } from "@prisma/client";
+import ejs from "ejs";
 import { NextFunction, Request, Response } from "express";
+import { readFile } from "fs/promises";
+import htmToPdf from "html-pdf";
+import path from "path";
 import { EnrollmentModel } from "../models";
 import { enrollmentValidationShema } from "../schema";
 
@@ -443,6 +447,90 @@ export const progress = async (
 
     // Return updated enrollment with progresses
     return res.json(enrollment);
+  } catch (error) {
+    next(error);
+  }
+};
+
+export const downLoadCertificate = async (
+  req: Request,
+  res: Response,
+  next: NextFunction
+) => {
+  try {
+    const enrollmentId = req.params.enrollmentId;
+    const student = (req as any).user as User & {
+      profile: Profile & { student: Student };
+    };
+    const enrollment = await EnrollmentModel.findUniqueOrThrow({
+      where: {
+        id: enrollmentId,
+        studentId: student.profile.student.id,
+        progressPercentage: {
+          gte: 100,
+        },
+        course: {
+          //Assert all course tests are attempted atleast once
+          tests: {
+            every: {
+              attempts: {
+                some: {
+                  enrollmentId,
+                  
+                },
+              },
+            },
+          },
+        },
+      },
+      include: {
+        course: true,
+      },
+    });
+    const html = await ejs.renderFile(
+      path.join(process.cwd(), "assets", "certificate-template.ejs"),
+      {
+        studentName: student.profile.name,
+        courseName: enrollment.course.title,
+        signBase64: await readFile(
+          path.join(process.cwd(), "assets", "signature.png"),
+          { encoding: "base64" }
+        ),
+        frameBase64: await readFile(
+          path.join(process.cwd(), "assets", "frame.png"),
+          { encoding: "base64" }
+        ),
+        medalBase64: await readFile(
+          path.join(process.cwd(), "assets", "medal.png"),
+          { encoding: "base64" }
+        ),
+        congratsBase64: await readFile(
+          path.join(process.cwd(), "assets", "congrats.png"),
+          { encoding: "base64" }
+        ),
+      }
+    );
+    // return res.send(html);
+    htmToPdf
+      .create(html, {
+        format: "A4",
+        orientation: "portrait",
+        border: { top: "2mm", right: "2mm", bottom: "2mm", left: "2mm" },
+      })
+      .toBuffer((err, buffer) => {
+        if (err) {
+          throw err;
+        } else {
+          // Set appropriate headers for PDF streaming
+          res.setHeader("Content-Type", "application/pdf");
+          res.setHeader(
+            "Content-Disposition",
+            'attachment; filename="certificate.pdf"'
+          );
+          // Stream the PDF buffer directly to the response
+          res.send(buffer);
+        }
+      });
   } catch (error) {
     next(error);
   }

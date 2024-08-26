@@ -6,6 +6,7 @@ import {
   getMyEnrollments,
   progress,
   getMyEnrollment,
+  downLoadCertificate,
 } from "../controllers";
 import { requireAuthenticated } from "@/middlewares";
 import { requireStudent } from "@/middlewares/require_roles";
@@ -25,6 +26,12 @@ router.post(
   "/enrollments/:enrollmentId/complete-payment",
   [validateUUIDPathParam("enrollmentId"), requireAuthenticated, requireStudent],
   completeEnrollmentPayement
+);
+
+router.get(
+  "/enrollments/:enrollmentId/download-certificate",
+  [validateUUIDPathParam("enrollmentId"), requireAuthenticated, requireStudent],
+  downLoadCertificate
 );
 
 router.get(
