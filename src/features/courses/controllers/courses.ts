@@ -25,6 +25,7 @@ export const getCourses = async (
       search,
       page,
       pageSize,
+      rating,
     } = validation.data;
 
     const courses = await CourseModel.findMany({
@@ -35,6 +36,7 @@ export const getCourses = async (
             level,
             timeToComplete: { gte: minDuration, lte: maxDuration },
             price: { gte: minPrice, lte: maxPrice },
+            averageRating: { gte: rating, lt: rating ? rating + 1 : undefined },
           },
           {
             OR: search

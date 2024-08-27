@@ -109,6 +109,7 @@ CREATE TABLE `Course` (
     `level` ENUM('Beginner', 'Intermediate', 'Advanced') NOT NULL,
     `createdAt` DATETIME(3) NOT NULL DEFAULT CURRENT_TIMESTAMP(3),
     `updatedAt` DATETIME(3) NOT NULL,
+    `averageRating` DOUBLE NOT NULL DEFAULT 0.0,
 
     PRIMARY KEY (`id`)
 ) DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
@@ -154,12 +155,12 @@ CREATE TABLE `Content` (
 ) DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
 
 -- CreateTable
-CREATE TABLE `Review` (
+CREATE TABLE `CourseReview` (
     `id` VARCHAR(191) NOT NULL,
-    `courseId` VARCHAR(191) NOT NULL,
-    `studentId` VARCHAR(191) NOT NULL,
+    `enrollmentId` VARCHAR(191) NOT NULL,
     `rating` DOUBLE NOT NULL,
     `comment` TEXT NULL,
+    `active` BOOLEAN NOT NULL DEFAULT true,
     `createdAt` DATETIME(3) NOT NULL DEFAULT CURRENT_TIMESTAMP(3),
     `updatedAt` DATETIME(3) NOT NULL,
 
@@ -170,11 +171,123 @@ CREATE TABLE `Review` (
 CREATE TABLE `Enrollment` (
     `id` VARCHAR(191) NOT NULL,
     `courseId` VARCHAR(191) NOT NULL,
+    `cost` DECIMAL(65, 30) NOT NULL,
     `studentId` VARCHAR(191) NOT NULL,
-    `progress` DECIMAL(65, 30) NOT NULL,
     `completionDate` DATETIME(3) NULL,
     `createdAt` DATETIME(3) NOT NULL DEFAULT CURRENT_TIMESTAMP(3),
+    `progressPercentage` DECIMAL(65, 30) NOT NULL DEFAULT 0.0,
 
+    PRIMARY KEY (`id`)
+) DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
+
+-- CreateTable
+CREATE TABLE `ModuleProgress` (
+    `id` INTEGER NOT NULL AUTO_INCREMENT,
+    `enrollmentId` VARCHAR(191) NOT NULL,
+    `moduleId` VARCHAR(191) NOT NULL,
+    `createdAt` DATETIME(3) NOT NULL DEFAULT CURRENT_TIMESTAMP(3),
+
+    UNIQUE INDEX `ModuleProgress_enrollmentId_moduleId_key`(`enrollmentId`, `moduleId`),
+    PRIMARY KEY (`id`)
+) DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
+
+-- CreateTable
+CREATE TABLE `ModuleContentProgress` (
+    `id` INTEGER NOT NULL AUTO_INCREMENT,
+    `moduleProgressId` INTEGER NOT NULL,
+    `contentId` VARCHAR(191) NOT NULL,
+    `createdAt` DATETIME(3) NOT NULL DEFAULT CURRENT_TIMESTAMP(3),
+
+    UNIQUE INDEX `ModuleContentProgress_contentId_moduleProgressId_key`(`contentId`, `moduleProgressId`),
+    PRIMARY KEY (`id`)
+) DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
+
+-- CreateTable
+CREATE TABLE `Payment` (
+    `id` VARCHAR(191) NOT NULL,
+    `amount` DECIMAL(65, 30) NULL,
+    `enrollmentId` VARCHAR(191) NOT NULL,
+    `complete` BOOLEAN NOT NULL DEFAULT false,
+    `description` TEXT NULL,
+    `merchantRequestId` VARCHAR(191) NOT NULL,
+    `checkoutRequestId` VARCHAR(191) NOT NULL,
+    `resultCode` VARCHAR(191) NULL,
+    `resultDescription` VARCHAR(191) NULL,
+    `mpesareceiptNumber` VARCHAR(191) NULL,
+    `transactionDate` VARCHAR(191) NULL,
+    `phoneNumber` VARCHAR(191) NULL,
+    `createdAt` DATETIME(3) NOT NULL DEFAULT CURRENT_TIMESTAMP(3),
+    `updatedAt` DATETIME(3) NOT NULL,
+
+    UNIQUE INDEX `Payment_id_key`(`id`),
+    UNIQUE INDEX `Payment_enrollmentId_key`(`enrollmentId`),
+    UNIQUE INDEX `Payment_merchantRequestId_key`(`merchantRequestId`),
+    PRIMARY KEY (`id`)
+) DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
+
+-- CreateTable
+CREATE TABLE `Test` (
+    `id` VARCHAR(191) NOT NULL,
+    `title` VARCHAR(191) NOT NULL,
+    `courseId` VARCHAR(191) NULL,
+    `moduleId` VARCHAR(191) NULL,
+    `createdAt` DATETIME(3) NOT NULL DEFAULT CURRENT_TIMESTAMP(3),
+    `updatedAt` DATETIME(3) NOT NULL,
+
+    UNIQUE INDEX `Test_id_key`(`id`),
+    UNIQUE INDEX `Test_title_courseId_key`(`title`, `courseId`),
+    UNIQUE INDEX `Test_title_moduleId_key`(`title`, `moduleId`),
+    PRIMARY KEY (`id`)
+) DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
+
+-- CreateTable
+CREATE TABLE `TestQuestion` (
+    `id` VARCHAR(191) NOT NULL,
+    `testId` VARCHAR(191) NOT NULL,
+    `question` VARCHAR(191) NOT NULL,
+    `createdAt` DATETIME(3) NOT NULL DEFAULT CURRENT_TIMESTAMP(3),
+    `updatedAt` DATETIME(3) NOT NULL,
+
+    UNIQUE INDEX `TestQuestion_id_key`(`id`),
+    UNIQUE INDEX `TestQuestion_testId_question_key`(`testId`, `question`),
+    PRIMARY KEY (`id`)
+) DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
+
+-- CreateTable
+CREATE TABLE `TestQuestionChoice` (
+    `id` VARCHAR(191) NOT NULL,
+    `questionId` VARCHAR(191) NOT NULL,
+    `choice` VARCHAR(191) NOT NULL,
+    `answer` BOOLEAN NOT NULL DEFAULT false,
+    `createdAt` DATETIME(3) NOT NULL DEFAULT CURRENT_TIMESTAMP(3),
+    `updatedAt` DATETIME(3) NOT NULL,
+
+    UNIQUE INDEX `TestQuestionChoice_id_key`(`id`),
+    UNIQUE INDEX `TestQuestionChoice_questionId_choice_key`(`questionId`, `choice`),
+    PRIMARY KEY (`id`)
+) DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
+
+-- CreateTable
+CREATE TABLE `TestAttempt` (
+    `id` VARCHAR(191) NOT NULL,
+    `enrollmentId` VARCHAR(191) NOT NULL,
+    `testId` VARCHAR(191) NOT NULL,
+    `score` DECIMAL(65, 30) NOT NULL DEFAULT 0.0,
+    `createdAt` DATETIME(3) NOT NULL DEFAULT CURRENT_TIMESTAMP(3),
+
+    UNIQUE INDEX `TestAttempt_id_key`(`id`),
+    PRIMARY KEY (`id`)
+) DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
+
+-- CreateTable
+CREATE TABLE `TestAttemptQuestion` (
+    `id` VARCHAR(191) NOT NULL,
+    `attemptId` VARCHAR(191) NOT NULL,
+    `questionId` VARCHAR(191) NOT NULL,
+    `choiceId` VARCHAR(191) NOT NULL,
+
+    UNIQUE INDEX `TestAttemptQuestion_id_key`(`id`),
+    UNIQUE INDEX `TestAttemptQuestion_attemptId_questionId_choiceId_key`(`attemptId`, `questionId`, `choiceId`),
     PRIMARY KEY (`id`)
 ) DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
 
@@ -215,13 +328,52 @@ ALTER TABLE `Module` ADD CONSTRAINT `Module_courseId_fkey` FOREIGN KEY (`courseI
 ALTER TABLE `Content` ADD CONSTRAINT `Content_moduleId_fkey` FOREIGN KEY (`moduleId`) REFERENCES `Module`(`id`) ON DELETE CASCADE ON UPDATE CASCADE;
 
 -- AddForeignKey
-ALTER TABLE `Review` ADD CONSTRAINT `Review_courseId_fkey` FOREIGN KEY (`courseId`) REFERENCES `Course`(`id`) ON DELETE CASCADE ON UPDATE CASCADE;
-
--- AddForeignKey
-ALTER TABLE `Review` ADD CONSTRAINT `Review_studentId_fkey` FOREIGN KEY (`studentId`) REFERENCES `Student`(`id`) ON DELETE CASCADE ON UPDATE CASCADE;
+ALTER TABLE `CourseReview` ADD CONSTRAINT `CourseReview_enrollmentId_fkey` FOREIGN KEY (`enrollmentId`) REFERENCES `Enrollment`(`id`) ON DELETE CASCADE ON UPDATE CASCADE;
 
 -- AddForeignKey
 ALTER TABLE `Enrollment` ADD CONSTRAINT `Enrollment_courseId_fkey` FOREIGN KEY (`courseId`) REFERENCES `Course`(`id`) ON DELETE CASCADE ON UPDATE CASCADE;
 
 -- AddForeignKey
 ALTER TABLE `Enrollment` ADD CONSTRAINT `Enrollment_studentId_fkey` FOREIGN KEY (`studentId`) REFERENCES `Student`(`id`) ON DELETE CASCADE ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE `ModuleProgress` ADD CONSTRAINT `ModuleProgress_enrollmentId_fkey` FOREIGN KEY (`enrollmentId`) REFERENCES `Enrollment`(`id`) ON DELETE CASCADE ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE `ModuleProgress` ADD CONSTRAINT `ModuleProgress_moduleId_fkey` FOREIGN KEY (`moduleId`) REFERENCES `Module`(`id`) ON DELETE CASCADE ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE `ModuleContentProgress` ADD CONSTRAINT `ModuleContentProgress_moduleProgressId_fkey` FOREIGN KEY (`moduleProgressId`) REFERENCES `ModuleProgress`(`id`) ON DELETE CASCADE ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE `ModuleContentProgress` ADD CONSTRAINT `ModuleContentProgress_contentId_fkey` FOREIGN KEY (`contentId`) REFERENCES `Content`(`id`) ON DELETE CASCADE ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE `Payment` ADD CONSTRAINT `Payment_enrollmentId_fkey` FOREIGN KEY (`enrollmentId`) REFERENCES `Enrollment`(`id`) ON DELETE CASCADE ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE `Test` ADD CONSTRAINT `Test_courseId_fkey` FOREIGN KEY (`courseId`) REFERENCES `Course`(`id`) ON DELETE CASCADE ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE `Test` ADD CONSTRAINT `Test_moduleId_fkey` FOREIGN KEY (`moduleId`) REFERENCES `Module`(`id`) ON DELETE CASCADE ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE `TestQuestion` ADD CONSTRAINT `TestQuestion_testId_fkey` FOREIGN KEY (`testId`) REFERENCES `Test`(`id`) ON DELETE CASCADE ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE `TestQuestionChoice` ADD CONSTRAINT `TestQuestionChoice_questionId_fkey` FOREIGN KEY (`questionId`) REFERENCES `TestQuestion`(`id`) ON DELETE CASCADE ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE `TestAttempt` ADD CONSTRAINT `TestAttempt_enrollmentId_fkey` FOREIGN KEY (`enrollmentId`) REFERENCES `Enrollment`(`id`) ON DELETE CASCADE ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE `TestAttempt` ADD CONSTRAINT `TestAttempt_testId_fkey` FOREIGN KEY (`testId`) REFERENCES `Test`(`id`) ON DELETE CASCADE ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE `TestAttemptQuestion` ADD CONSTRAINT `TestAttemptQuestion_attemptId_fkey` FOREIGN KEY (`attemptId`) REFERENCES `TestAttempt`(`id`) ON DELETE CASCADE ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE `TestAttemptQuestion` ADD CONSTRAINT `TestAttemptQuestion_questionId_fkey` FOREIGN KEY (`questionId`) REFERENCES `TestQuestion`(`id`) ON DELETE CASCADE ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE `TestAttemptQuestion` ADD CONSTRAINT `TestAttemptQuestion_choiceId_fkey` FOREIGN KEY (`choiceId`) REFERENCES `TestQuestionChoice`(`id`) ON DELETE CASCADE ON UPDATE CASCADE;

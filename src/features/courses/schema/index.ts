@@ -10,6 +10,7 @@ export const courseSearchSchema = z.object({
   maxDuration: z.number({ coerce: true }).optional(),
   page: z.number({ coerce: true }).min(1).optional().default(1),
   pageSize: z.number({ coerce: true }).min(1).optional().default(10),
+  rating: z.number({ coerce: true }).optional(),
 });
 
 export const testQuestionValidationSChema = z.object({

@@ -1,3 +1,8 @@
+import { getCourseReviews } from "@/features/students/controllers/reviews";
+import authenticate from "@/middlewares/authentication";
+import fileUploader from "@/middlewares/file_uploader";
+import { requireInstructor } from "@/middlewares/require_roles";
+import { validateUUIDPathParam } from "@/middlewares/validators";
 import { Router } from "express";
 import {
   addCourse,
@@ -6,15 +11,8 @@ import {
   getCourses,
   updateCourse,
 } from "../controllers/courses";
-import authenticate from "@/middlewares/authentication";
-import { requireInstructor } from "@/middlewares/require_roles";
-import imageUploader from "@/middlewares/image_uploader";
-import fileUploader from "@/middlewares/file_uploader";
-import uploader from "@/middlewares/upload";
-import { validateUUIDPathParam } from "@/middlewares/validators";
 import modulesRouter from "./modules";
 import testRouter from "./tests";
-import { getCourseReviews } from "@/features/students/controllers/reviews";
 
 const router = Router();
 router.get("/", getCourses);
