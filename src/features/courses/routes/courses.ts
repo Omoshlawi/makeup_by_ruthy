@@ -9,6 +9,7 @@ import {
   deleteCourse,
   getCourse,
   getCourses,
+  getMyCourses,
   updateCourse,
 } from "../controllers/courses";
 import modulesRouter from "./modules";
@@ -16,6 +17,8 @@ import testRouter from "./tests";
 
 const router = Router();
 router.get("/", getCourses);
+router.get("/authored", [authenticate, requireInstructor], getMyCourses);
+
 router.post(
   "/",
   [

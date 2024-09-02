@@ -1,7 +1,11 @@
 import { NextFunction, Request, Response } from "express";
 import { courseInclude, CourseModel } from "../models";
 import { APIException } from "@/shared/exceprions";
-import { courseSearchSchema, courseValidationSchema } from "../schema";
+import {
+  courseSearchSchema,
+  courseValidationSchema,
+  myCourseSearchSchema,
+} from "../schema";
 import { Instructor, Profile, User } from "@prisma/client";
 import { paginate } from "@/utils/helpers";
 
@@ -32,6 +36,85 @@ export const getCourses = async (
       where: {
         AND: [
           {
+            language,
+            level,
+            timeToComplete: { gte: minDuration, lte: maxDuration },
+            price: { gte: minPrice, lte: maxPrice },
+            averageRating: { gte: rating, lt: rating ? rating + 1 : undefined },
+          },
+          {
+            OR: search
+              ? [
+                  {
+                    title: {
+                      contains: search,
+                    },
+                  },
+                  {
+                    overview: {
+                      contains: search,
+                    },
+                  },
+                  {
+                    instructor: {
+                      profile: {
+                        OR: [
+                          { email: search },
+                          { phoneNumber: search },
+                          { name: search },
+                        ],
+                      },
+                    },
+                  },
+                ]
+              : undefined,
+          },
+        ],
+      },
+      skip: paginate(pageSize, page),
+      take: pageSize,
+      orderBy: { createdAt: "asc" },
+      include: courseInclude,
+    });
+    return res.json({ results: courses });
+  } catch (error) {
+    return next(error);
+  }
+};
+
+export const getMyCourses = async (
+  req: Request,
+  res: Response,
+  next: NextFunction
+) => {
+  try {
+    const validation = await myCourseSearchSchema.safeParseAsync(req.query);
+    if (!validation.success)
+      throw new APIException(400, validation.error.format());
+
+    const user: User & { profile: Profile & { instructor: Instructor } } = (
+      req as any
+    ).user;
+    const {
+      language,
+      level,
+      maxDuration,
+      minDuration,
+      maxPrice,
+      minPrice,
+      search,
+      page,
+      pageSize,
+      rating,
+      status,
+    } = validation.data;
+
+    const courses = await CourseModel.findMany({
+      where: {
+        AND: [
+          {
+            instructorId: user.profile.instructor.id,
+            status,
             language,
             level,
             timeToComplete: { gte: minDuration, lte: maxDuration },

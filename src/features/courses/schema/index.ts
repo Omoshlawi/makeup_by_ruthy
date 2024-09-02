@@ -13,6 +13,20 @@ export const courseSearchSchema = z.object({
   rating: z.number({ coerce: true }).optional(),
 });
 
+export const myCourseSearchSchema = z.object({
+  search: z.string().optional(),
+  language: z.enum(["English", "Swahili"]).optional(),
+  level: z.enum(["Beginner", "Intermediate", "Advanced"]).optional(),
+  minPrice: z.number({ coerce: true }).optional(),
+  maxPrice: z.number({ coerce: true }).optional(),
+  minDuration: z.number({ coerce: true }).optional(),
+  maxDuration: z.number({ coerce: true }).optional(),
+  page: z.number({ coerce: true }).min(1).optional().default(1),
+  pageSize: z.number({ coerce: true }).min(1).optional().default(10),
+  rating: z.number({ coerce: true }).optional(),
+  status: z.enum(["Draft", "Published"]).optional(),
+});
+
 export const testQuestionValidationSChema = z.object({
   question: z.string().min(1, "Required"),
   choices: z
