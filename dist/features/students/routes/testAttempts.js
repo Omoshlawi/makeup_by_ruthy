@@ -1,0 +1,10 @@
+"use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
+const express_1 = require("express");
+const attempts_1 = require("../controllers/attempts");
+const validators_1 = require("../../../middlewares/validators");
+const router = (0, express_1.Router)({ mergeParams: true });
+router.get("/", attempts_1.getTestAttempts);
+router.post("/", attempts_1.addTestAttempts);
+router.delete("/:attemptId", [(0, validators_1.validateUUIDPathParam)("attemptId")], attempts_1.deleteTestAttempts);
+exports.default = router;

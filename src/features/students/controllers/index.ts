@@ -235,39 +235,7 @@ export const getMyEnrollments = async (
     };
     const enrollments = await EnrollmentModel.findMany({
       where: { studentId: student.profile.student.id },
-      include: {
-        course: true,
-        reviews: true,
-        moduleProgress: {
-          select: {
-            id: true,
-            moduleId: true,
-            contents: {
-              select: {
-                id: true,
-                contentId: true,
-                createdAt: true,
-              },
-            },
-            createdAt: true,
-            // _count: true,
-          },
-        },
-        payment: {
-          select: {
-            amount: true,
-            mpesareceiptNumber: true,
-            complete: true,
-            phoneNumber: true,
-            createdAt: true,
-            updatedAt: true,
-            id: true,
-            transactionDate: true,
-            enrollmentId: true,
-            description: true,
-          },
-        },
-      },
+      include: enrollmentInclude,
     });
     return res.json({ results: enrollments });
   } catch (error) {
@@ -476,7 +444,6 @@ export const downLoadCertificate = async (
               attempts: {
                 some: {
                   enrollmentId,
-                  
                 },
               },
             },
