@@ -12,6 +12,7 @@ export const courseSearchSchema = z.object({
   pageSize: z.number({ coerce: true }).min(1).optional().default(10),
   rating: z.number({ coerce: true }).optional(),
   includeAll: z.string().optional(),
+  v: z.string().optional(),
 });
 
 export const tagSearchSchema = z.object({
@@ -19,6 +20,7 @@ export const tagSearchSchema = z.object({
   name: z.string().optional(),
   page: z.number({ coerce: true }).min(1).optional().default(1),
   pageSize: z.number({ coerce: true }).min(1).optional().default(10),
+  v: z.string().optional(),
 });
 
 export const myCourseSearchSchema = z.object({

@@ -39,3 +39,79 @@ export const handlePrismaErrors = (e: any) => {
     }
   }
 };
+
+export function parseCustomRepresentation(
+  customRep: string
+): Record<string, any> | undefined {
+  const mode = customRep?.split(":")[0]?.trim();
+  if (!["include", "select"].includes(mode)) return;
+  // Helper function to parse nested properties
+  function parseFields(fields: string): Record<string, any> {
+    const result: Record<string, any> = {};
+    let currentKey = "";
+    let depth = 0;
+    let nested = "";
+
+    for (let char of fields) {
+      if (char === "(") {
+        depth++;
+        if (depth === 1) {
+          continue;
+        }
+      } else if (char === ")") {
+        depth--;
+        if (depth === 0) {
+          result[currentKey.trim()] = { [mode]: parseFields(nested) };
+          currentKey = "";
+          nested = "";
+          continue;
+        }
+      }
+
+      if (depth > 0) {
+        nested += char;
+      } else if (char === ",") {
+        if (currentKey.trim()) {
+          result[currentKey.trim()] = true; // Simple field
+        }
+        currentKey = "";
+      } else {
+        currentKey += char;
+      }
+    }
+
+    if (currentKey.trim()) {
+      result[currentKey.trim()] = true; // Last simple field
+    }
+
+    return result;
+  }
+  const parsedFields = parseFields(customRep);
+
+  function processObject(obj: Record<string, any>): Record<string, any> {
+    const processedObj: Record<string, any> = {};
+    for (const key in obj) {
+      if (typeof obj[key] === "object") {
+        processedObj[key.endsWith(":") ? key.slice(0, -1) : key] =
+          processObject(obj[key]);
+      } else {
+        processedObj[key] = obj[key];
+      }
+    }
+    return processedObj;
+  }
+
+  return processObject(parsedFields)[mode][mode];
+}
+
+export const paginate = (pageSize: number, page: number) =>
+  (page - 1) * pageSize;
+
+export const getFileds = (v?: string): any => ({
+  include: v?.startsWith("include:")
+    ? parseCustomRepresentation(v ?? "")
+    : undefined,
+  select: v?.startsWith("select:")
+    ? parseCustomRepresentation(v ?? "")
+    : undefined,
+});

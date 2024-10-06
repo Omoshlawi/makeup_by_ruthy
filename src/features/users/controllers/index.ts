@@ -4,7 +4,7 @@ import { APIException } from "@/shared/exceprions";
 import { UserModel } from "../models";
 import { isEmpty } from "lodash";
 import { User } from "@prisma/client";
-import { paginate } from "@/utils/helpers";
+import { paginate } from "@/services/db";
 
 export const updateProfile = async (
   req: Request,

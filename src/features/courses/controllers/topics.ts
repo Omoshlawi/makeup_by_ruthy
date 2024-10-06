@@ -3,7 +3,7 @@ import { TopicsMddel } from "../models";
 import { z } from "zod";
 import { tagSearchSchema, topicValidationSchema } from "../schema";
 import { APIException } from "@/shared/exceprions";
-import { paginate } from "@/utils/helpers";
+import { paginate } from "@/services/db";
 
 export const getTopics = async (
   req: Request,

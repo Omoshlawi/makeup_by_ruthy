@@ -49,8 +49,7 @@ export const checkPassword = async (hash: string, password: string) => {
   return await bcrypt.compare(password, hash);
 };
 
-export const paginate = (pageSize: number, page: number) =>
-  (page - 1) * pageSize;
+
 
 export function normalizePhoneNumber(phoneNumber: string) {
   // Define the regex pattern to capture the phone number part
@@ -78,3 +77,4 @@ export const normalizeIp = (ip: string) => {
   }
   return ip;
 };
+

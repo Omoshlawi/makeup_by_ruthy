@@ -3,7 +3,7 @@ import { InstructorModel } from "../models";
 import { UserModel } from "@/features/users/models";
 import { instructorSearchSchema } from "../schema";
 import { APIException } from "@/shared/exceprions";
-import { paginate } from "@/utils/helpers";
+import { paginate } from "@/services/db";
 
 export const getInstructors = async (
   req: Request,

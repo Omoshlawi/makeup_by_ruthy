@@ -7,7 +7,7 @@ import {
   myCourseSearchSchema,
 } from "../schema";
 import { Instructor, Profile, User } from "@prisma/client";
-import { paginate } from "@/utils/helpers";
+import { getFileds, paginate, parseCustomRepresentation } from "@/services/db";
 
 export const toggleCourseApproval = async (
   req: Request,
@@ -54,6 +54,7 @@ export const getCourses = async (
       pageSize,
       rating,
       includeAll,
+      v,
     } = validation.data;
     const include = includeAll?.trim().split(",");
     const courses = await CourseModel.findMany({
@@ -99,7 +100,7 @@ export const getCourses = async (
       skip: paginate(pageSize, page),
       take: pageSize,
       orderBy: { createdAt: "asc" },
-      include: courseInclude,
+      ...getFileds(v),
     });
     return res.json({ results: courses });
   } catch (error) {
