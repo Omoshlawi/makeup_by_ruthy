@@ -1,9 +1,10 @@
 import { NextFunction, Request, Response } from "express";
-import { accountSetupSchema, ProfileSchema } from "../schema";
+import { accountSetupSchema, ProfileSchema, userSearchSchema } from "../schema";
 import { APIException } from "@/shared/exceprions";
 import { UserModel } from "../models";
 import { isEmpty } from "lodash";
 import { User } from "@prisma/client";
+import { paginate } from "@/utils/helpers";
 
 export const updateProfile = async (
   req: Request,
@@ -76,7 +77,34 @@ export const getUsers = async (
   next: NextFunction
 ) => {
   try {
-    return res.json({ results: await UserModel.findMany() });
+    const validation = await userSearchSchema.safeParseAsync(req.query);
+    if (!validation.success)
+      throw new APIException(400, validation.error.format());
+
+    const { search, page, pageSize, includeAll } = validation.data;
+    const include = includeAll?.trim().split(",");
+
+    const results = await UserModel.findMany({
+      where: {
+        AND: [
+          {
+            OR: search
+              ? [
+                  { username: { contains: search } },
+                  { profile: { name: { contains: search } } },
+                  { profile: { email: { contains: search } } },
+                  { profile: { phoneNumber: { contains: search } } },
+                ]
+              : undefined,
+          },
+        ],
+      },
+      skip: paginate(pageSize, page),
+      take: pageSize,
+      orderBy: { createdAt: "asc" },
+    });
+
+    return res.json({ results });
   } catch (error) {
     return next(error);
   }

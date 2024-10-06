@@ -1,8 +1,9 @@
 import { NextFunction, Request, Response } from "express";
 import { TopicsMddel } from "../models";
 import { z } from "zod";
-import { topicValidationSchema } from "../schema";
+import { tagSearchSchema, topicValidationSchema } from "../schema";
 import { APIException } from "@/shared/exceprions";
+import { paginate } from "@/utils/helpers";
 
 export const getTopics = async (
   req: Request,
@@ -10,7 +11,26 @@ export const getTopics = async (
   next: NextFunction
 ) => {
   try {
-    const topics = await TopicsMddel.findMany();
+    const validation = await tagSearchSchema.safeParseAsync(req.query);
+    if (!validation.success)
+      throw new APIException(400, validation.error.format());
+
+    const { search, page, pageSize } = validation.data;
+    const topics = await TopicsMddel.findMany({
+      where: {
+        AND: [
+          {
+            OR: [
+              { name: { contains: search } },
+              { overview: { contains: search } },
+            ],
+          },
+        ],
+      },
+      skip: paginate(pageSize, page),
+      take: pageSize,
+      orderBy: { createdAt: "asc" },
+    });
     return res.json({ results: topics });
   } catch (error) {
     next(error);
