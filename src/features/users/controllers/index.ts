@@ -82,13 +82,34 @@ export const getUsers = async (
   }
 };
 
+export const perfomUserAction = async (
+  req: Request,
+  res: Response,
+  next: NextFunction
+) => {
+  try {
+    const userId = req.params.userId;
+    const action = req.params.action;
+
+    if (!["activate", "deactivate"].includes(action))
+      throw new APIException(404, { detail: "Not found" });
+
+    await UserModel.update({
+      where: { id: userId, isActive: action !== "activate" },
+      data: { isActive: action === "activate" },
+    });
+    return res.json({ detail: `User ${action} successfull` });
+  } catch (error) {
+    return next(error);
+  }
+};
+
 export const setUpAccount = async (
   req: Request,
   res: Response,
   next: NextFunction
 ) => {
   try {
-
     const validatopn = await accountSetupSchema.safeParseAsync(req.body);
     if (!validatopn.success)
       throw new APIException(400, validatopn.error.format());

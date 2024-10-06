@@ -1,7 +1,7 @@
 import { getCourseReviews } from "@/features/students/controllers/reviews";
 import authenticate from "@/middlewares/authentication";
 import fileUploader from "@/middlewares/file_uploader";
-import { requireInstructor } from "@/middlewares/require_roles";
+import { requireAdmin, requireInstructor } from "@/middlewares/require_roles";
 import { validateUUIDPathParam } from "@/middlewares/validators";
 import { Router } from "express";
 import {
@@ -10,6 +10,7 @@ import {
   getCourse,
   getCourses,
   getMyCourses,
+  toggleCourseApproval,
   updateCourse,
 } from "../controllers/courses";
 import modulesRouter from "./modules";
@@ -68,6 +69,12 @@ router.get(
   "/:courseId/reviews",
   [validateUUIDPathParam("courseId"), authenticate],
   getCourseReviews
+);
+
+router.get(
+  "/:courseId/approval/:action",
+  [validateUUIDPathParam("courseId"), authenticate, requireAdmin],
+  toggleCourseApproval
 );
 
 export default router;

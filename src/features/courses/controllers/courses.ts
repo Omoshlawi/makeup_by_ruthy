@@ -9,6 +9,29 @@ import {
 import { Instructor, Profile, User } from "@prisma/client";
 import { paginate } from "@/utils/helpers";
 
+export const toggleCourseApproval = async (
+  req: Request,
+  res: Response,
+  next: NextFunction
+) => {
+  try {
+    const courseId = req.params.courseId;
+    const action = req.params.action as any;
+
+    if (!["approve", "disapprove"].includes(action))
+      throw new APIException(404, { detail: "Not found" });
+
+    await CourseModel.update({
+      where: { id: courseId, approved: action !== "approve" },
+      data: { approved: action === "approve" },
+    });
+
+    return res.json({ detail: `Course ${action} successfull!` });
+  } catch (error) {
+    next(error);
+  }
+};
+
 export const getCourses = async (
   req: Request,
   res: Response,
@@ -30,8 +53,9 @@ export const getCourses = async (
       page,
       pageSize,
       rating,
+      includeAll,
     } = validation.data;
-
+    const include = includeAll?.trim().split(",");
     const courses = await CourseModel.findMany({
       where: {
         AND: [
@@ -41,6 +65,7 @@ export const getCourses = async (
             timeToComplete: { gte: minDuration, lte: maxDuration },
             price: { gte: minPrice, lte: maxPrice },
             averageRating: { gte: rating, lt: rating ? rating + 1 : undefined },
+            approved: include?.includes("unapproved") ? undefined : true,
           },
           {
             OR: search

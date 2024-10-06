@@ -1,7 +1,15 @@
 import authenticate from "@/middlewares/authentication";
 import { Router } from "express";
-import { getUsers, setUpAccount, updateProfile, viewProfile } from "../controllers";
+import {
+  getUsers,
+  perfomUserAction,
+  setUpAccount,
+  updateProfile,
+  viewProfile,
+} from "../controllers";
 import imageUploader from "@/middlewares/image_uploader";
+import { requireAuthenticated } from "@/middlewares";
+import { requireAdmin } from "@/middlewares/require_roles";
 
 const router = Router();
 
@@ -16,6 +24,11 @@ router.put(
   ],
   setUpAccount
 );
-router.post("/", getUsers);
+router.get("/", [requireAuthenticated, requireAdmin], getUsers);
+router.get(
+  "/:userId/actions/:action",
+  [requireAuthenticated, requireAdmin],
+  perfomUserAction
+);
 
 export default router;

@@ -10,6 +10,7 @@ import coursesRouter from "@/features/courses/routes";
 import instructorsRouter from "@/features/instructors/routes";
 import studentsRouter from "@/features/students/routes";
 import paymentRouter from "@/features/payments/routes";
+import adminRouter from "@/features/admin/routes";
 
 /**
  * Handle database connection logic
@@ -50,6 +51,7 @@ export const configureExpressApp = async (app: Application) => {
   app.use("/instructors", instructorsRouter);
   app.use("/students", studentsRouter);
   app.use("/payments", paymentRouter)
+  app.use("/admin", adminRouter)
 
   //-------------------end routes-----------------------------
 

@@ -2,3 +2,4 @@
 node_modules/
 *.log
 media/
+prisma/migrations/
