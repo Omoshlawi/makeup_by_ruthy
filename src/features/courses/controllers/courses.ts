@@ -179,7 +179,7 @@ export const getMyCourses = async (
       skip: paginate(pageSize, page),
       take: pageSize,
       orderBy: { createdAt: "asc" },
-      include: courseInclude,
+      ...getFileds((req.query.v as any) ?? ""),
     });
     return res.json({ results: courses });
   } catch (error) {
@@ -195,7 +195,7 @@ export const getCourse = async (
   try {
     const course = await CourseModel.findUniqueOrThrow({
       where: { id: req.params.id },
-      include: courseInclude,
+      ...getFileds((req.query.v as any) ?? ""),
     });
     return res.json(course);
   } catch (error) {
@@ -215,12 +215,7 @@ export const addCourse = async (
     if (!validation.success)
       throw new APIException(400, validation.error.format());
     const topic = await CourseModel.create({
-      include: {
-        _count: true,
-        instructor: true,
-        modules: { include: { content: true } },
-        topics: { include: { topic: true } },
-      },
+      ...getFileds((req.query.v as any) ?? ""),
       data: {
         ...{
           ...validation.data,
@@ -255,7 +250,7 @@ export const updateCourse = async (
     if (!validation.success)
       throw new APIException(400, validation.error.format());
     const topic = await CourseModel.update({
-      include: courseInclude,
+      ...getFileds((req.query.v as any) ?? ""),
       data: {
         ...{
           ...validation.data,
@@ -291,12 +286,7 @@ export const deleteCourse = async (
   try {
     const topic = await CourseModel.delete({
       where: { id: req.params.id },
-      include: {
-        _count: true,
-        instructor: true,
-        modules: { include: { content: true } },
-        topics: { include: { topic: true } },
-      },
+      ...getFileds((req.query.v as any) ?? ""),
     });
     return res.json(topic);
   } catch (error) {

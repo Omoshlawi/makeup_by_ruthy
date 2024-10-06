@@ -9,6 +9,7 @@ import { Profile, Student, User } from "@prisma/client";
 import { attemptValidationSchema } from "../../courses/schema";
 import { APIException } from "@/shared/exceprions";
 import { EnrollmentModel } from "../models";
+import { getFileds } from "@/services/db";
 
 export const getTestAttempts = async (
   req: Request,
@@ -36,21 +37,7 @@ export const getTestAttempts = async (
             },
           },
         },
-        include: {
-          questions: {
-            include: {
-              choices: true,
-            },
-          },
-          attempts: {
-            include: {
-              attemptQuestions: {
-                include: { choice: true, question: true },
-              },
-              enrollement: true,
-            },
-          },
-        },
+        ...getFileds((req.query.v as any) ?? ""),
       }),
     });
   } catch (error) {
@@ -163,7 +150,7 @@ export const addTestAttempts = async (
     return res.json(
       await EnrollmentModel.findFirstOrThrow({
         where: { id: enrollmentId },
-        include: enrollmentInclude,
+        ...getFileds((req.query.v as any) ?? ""),
       })
     );
   } catch (error) {
@@ -209,21 +196,7 @@ export const deleteTestAttempts = async (
           },
         },
       },
-      include: {
-        questions: {
-          include: {
-            choices: true,
-          },
-        },
-        attempts: {
-          include: {
-            attemptQuestions: {
-              include: { choice: true, question: true },
-            },
-            enrollement: true,
-          },
-        },
-      },
+      ...getFileds((req.query.v as any) ?? ""),
     });
 
     return res.json(test);

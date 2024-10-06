@@ -3,6 +3,7 @@ import { NextFunction, Request, Response } from "express";
 import { contentValidationSchema } from "../schema";
 import { APIException } from "@/shared/exceprions";
 import { ContentModel, CourseModel } from "../models";
+import { getFileds } from "@/services/db";
 
 export const addModuleContent = async (
   req: Request,
@@ -44,12 +45,7 @@ export const addModuleContent = async (
           },
         },
       },
-      include: {
-        _count: true,
-        instructor: true,
-        modules: { include: { content: true } },
-        topics: { include: { topic: true } },
-      },
+      ...getFileds((req.query.v as any) ?? ""),
     });
 
     return res.json(course);
@@ -108,12 +104,7 @@ export const updateModuleContent = async (
           },
         },
       },
-      include: {
-        _count: true,
-        instructor: true,
-        modules: { include: { content: true } },
-        topics: { include: { topic: true } },
-      },
+      ...getFileds((req.query.v as any) ?? ""),
     });
 
     return res.json(course);
@@ -152,12 +143,7 @@ export const deleteModuleContent = async (
           },
         },
       },
-      include: {
-        _count: true,
-        instructor: true,
-        modules: { include: { content: true } },
-        topics: { include: { topic: true } },
-      },
+      ...getFileds((req.query.v as any) ?? ""),
     });
 
     return res.json(course);

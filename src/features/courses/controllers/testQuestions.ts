@@ -3,6 +3,7 @@ import { courseInclude, CourseModel, TestQuestionModel } from "../models";
 import { testQuestionValidationSChema } from "../schema";
 import { APIException } from "@/shared/exceprions";
 import { Instructor, Profile, User } from "@prisma/client";
+import { getFileds } from "@/services/db";
 
 export const getTestQuestions = async (
   req: Request,
@@ -17,10 +18,7 @@ export const getTestQuestions = async (
       where: {
         testId,
       },
-      include: {
-        choices: true,
-        test: true,
-      },
+      ...getFileds((req.query.v as any) ?? ""),
     });
     return res.json({ results: questions });
   } catch (error) {
@@ -136,7 +134,7 @@ export const addTestQuestion = async (
             }
           : undefined,
       },
-      include: courseInclude,
+      ...getFileds((req.query.v as any) ?? ""),
     });
 
     return res.json(course);
@@ -261,7 +259,7 @@ export const updateTestQuestions = async (
             }
           : undefined,
       },
-      include: courseInclude,
+      ...getFileds((req.query.v as any) ?? ""),
     });
 
     return res.json(course);
@@ -355,7 +353,7 @@ export const deleteTestQuestions = async (
           },
         },
       },
-      include: courseInclude,
+      ...getFileds((req.query.v as any) ?? ""),
     });
 
     return res.json(course);

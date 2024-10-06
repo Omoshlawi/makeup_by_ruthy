@@ -5,6 +5,7 @@ import { UserModel } from "../models";
 import { isEmpty } from "lodash";
 import { User } from "@prisma/client";
 import { paginate } from "@/services/db";
+import { getFileds } from "@/services/db";
 
 export const updateProfile = async (
   req: Request,
@@ -102,6 +103,7 @@ export const getUsers = async (
       skip: paginate(pageSize, page),
       take: pageSize,
       orderBy: { createdAt: "asc" },
+      ...getFileds((req.query.v as any) ?? ""),
     });
 
     return res.json({ results });

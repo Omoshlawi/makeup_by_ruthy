@@ -4,6 +4,7 @@ import { z } from "zod";
 import { tagSearchSchema, topicValidationSchema } from "../schema";
 import { APIException } from "@/shared/exceprions";
 import { paginate } from "@/services/db";
+import { getFileds } from "@/services/db";
 
 export const getTopics = async (
   req: Request,
@@ -30,6 +31,7 @@ export const getTopics = async (
       skip: paginate(pageSize, page),
       take: pageSize,
       orderBy: { createdAt: "asc" },
+      ...getFileds((req.query.v as any) ?? ""),
     });
     return res.json({ results: topics });
   } catch (error) {
@@ -45,6 +47,7 @@ export const getTopic = async (
   try {
     const topics = await TopicsMddel.findUniqueOrThrow({
       where: { id: req.params.id },
+      ...getFileds((req.query.v as any) ?? ""),
     });
     return res.json({ results: topics });
   } catch (error) {
@@ -60,7 +63,10 @@ export const addTopic = async (
     const validation = await topicValidationSchema.safeParseAsync(req.body);
     if (!validation.success)
       throw new APIException(400, validation.error.format());
-    const topic = await TopicsMddel.create({ data: validation.data });
+    const topic = await TopicsMddel.create({
+      data: validation.data,
+      ...getFileds((req.query.v as any) ?? ""),
+    });
     return res.json(topic);
   } catch (error) {
     next(error);
@@ -78,6 +84,7 @@ export const updateTopic = async (
     const topic = await TopicsMddel.update({
       data: validation.data,
       where: { id: req.params.id },
+      ...getFileds((req.query.v as any) ?? ""),
     });
     return res.json(topic);
   } catch (error) {
@@ -92,6 +99,7 @@ export const deleteTopic = async (
   try {
     const topic = await TopicsMddel.delete({
       where: { id: req.params.id },
+      ...getFileds((req.query.v as any) ?? ""),
     });
     return res.json(topic);
   } catch (error) {

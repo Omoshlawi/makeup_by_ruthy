@@ -3,6 +3,7 @@ import { Instructor, Profile, User } from "@prisma/client";
 import { NextFunction, Request, Response } from "express";
 import { courseInclude, CourseModel, TestModel } from "../models";
 import { courseTestValidationSchema } from "../schema";
+import { getFileds } from "@/services/db";
 
 export const getTests = async (
   req: Request,
@@ -19,7 +20,7 @@ export const getTests = async (
           courseId: isModuleTest ? undefined : courseId,
           moduleId: isModuleTest ? moduleId : undefined,
         },
-        include: courseInclude.tests.include,
+        ...getFileds((req.query.v as any) ?? ""),
       }),
     });
   } catch (error) {
@@ -44,7 +45,7 @@ export const getTest = async (
           id: testId,
           moduleId: isModuleTest ? moduleId : undefined,
         },
-        include: courseInclude.tests.include,
+        ...getFileds((req.query.v as any) ?? ""),
       })
     );
   } catch (error) {
@@ -131,7 +132,7 @@ export const addTest = async (
               },
             },
       },
-      include: courseInclude,
+      ...getFileds((req.query.v as any) ?? ""),
     });
 
     return res.json(course);
@@ -210,7 +211,7 @@ export const updateTest = async (
             }
           : undefined,
       },
-      include: courseInclude,
+      ...getFileds((req.query.v as any) ?? ""),
     });
 
     return res.json(course);
@@ -273,7 +274,7 @@ export const deleteTest = async (
             }
           : undefined,
       },
-      include: courseInclude,
+      ...getFileds((req.query.v as any) ?? ""),
     });
     return res.json(course);
   } catch (error) {

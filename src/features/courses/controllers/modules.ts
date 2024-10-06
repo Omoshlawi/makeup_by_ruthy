@@ -3,6 +3,7 @@ import { moduleValidationSchema } from "../schema";
 import { APIException } from "@/shared/exceprions";
 import { CourseModel, CourseModuleModel } from "../models";
 import { User } from "@prisma/client";
+import { getFileds } from "@/services/db";
 export const addCourseModule = async (
   req: Request,
   res: Response,
@@ -34,12 +35,7 @@ export const addCourseModule = async (
           create: validation.data,
         },
       },
-      include: {
-        _count: true,
-        instructor: true,
-        modules: { include: { content: true } },
-        topics: { include: { topic: true } },
-      },
+      ...getFileds((req.query.v as any) ?? ""),
     });
     return res.json(course);
   } catch (error) {
@@ -86,12 +82,7 @@ export const updateCourseModule = async (
           },
         },
       },
-      include: {
-        _count: true,
-        instructor: true,
-        modules: { include: { content: true } },
-        topics: { include: { topic: true } },
-      },
+      ...getFileds((req.query.v as any) ?? ""),
     });
     return res.json(course);
   } catch (error) {
@@ -120,12 +111,7 @@ export const deleteCourseModule = async (
           delete: { id: moduleId },
         },
       },
-      include: {
-        _count: true,
-        instructor: true,
-        modules: { include: { content: true } },
-        topics: { include: { topic: true } },
-      },
+      ...getFileds((req.query.v as any) ?? ""),
     });
     return res.json(course);
   } catch (error) {
