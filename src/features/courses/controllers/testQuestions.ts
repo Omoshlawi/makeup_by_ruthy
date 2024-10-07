@@ -333,25 +333,27 @@ export const deleteTestQuestions = async (
                 },
               },
             },
-        modules: {
-          update: {
-            where: { id: moduleId },
-            data: {
-              tests: {
-                update: {
-                  where: { id: testId },
-                  data: {
-                    questions: {
-                      delete: {
-                        id: questionId,
+        modules: isModuleTest
+          ? {
+              update: {
+                where: { id: moduleId },
+                data: {
+                  tests: {
+                    update: {
+                      where: { id: testId },
+                      data: {
+                        questions: {
+                          delete: {
+                            id: questionId,
+                          },
+                        },
                       },
                     },
                   },
                 },
               },
-            },
-          },
-        },
+            }
+          : undefined,
       },
       ...getFileds((req.query.v as any) ?? ""),
     });

@@ -13,16 +13,15 @@ exports.getInstructors = void 0;
 const models_1 = require("../../../features/users/models");
 const schema_1 = require("../schema");
 const exceprions_1 = require("../../../shared/exceprions");
-const helpers_1 = require("../../../utils/helpers");
+const db_1 = require("../../../services/db");
 const getInstructors = (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
+    var _a;
     try {
         const validation = yield schema_1.instructorSearchSchema.safeParseAsync(req.query);
         if (!validation.success)
             throw new exceprions_1.APIException(400, validation.error.format());
-        console.log("[+]Log instructors", validation.data);
         const { search, page, pageSize, rating } = validation.data;
-        const instructors = yield models_1.UserModel.findMany({
-            where: {
+        const instructors = yield models_1.UserModel.findMany(Object.assign({ where: {
                 AND: [
                     { profile: { instructor: { isNot: null } } },
                     {
@@ -58,23 +57,7 @@ const getInstructors = (req, res, next) => __awaiter(void 0, void 0, void 0, fun
                             : undefined,
                     },
                 ],
-            },
-            skip: (0, helpers_1.paginate)(pageSize, page),
-            take: pageSize,
-            orderBy: { createdAt: "asc" },
-            include: {
-                profile: {
-                    include: {
-                        instructor: {
-                            include: {
-                                specialities: { include: { topic: true } },
-                                courses: true,
-                            },
-                        },
-                    },
-                },
-            },
-        });
+            }, skip: (0, db_1.paginate)(pageSize, page), take: pageSize, orderBy: { createdAt: "asc" } }, (0, db_1.getFileds)((_a = req.query.v) !== null && _a !== void 0 ? _a : "")));
         return res.json({ results: instructors });
     }
     catch (error) {

@@ -13,20 +13,16 @@ exports.deleteTestQuestions = exports.updateTestQuestions = exports.addTestQuest
 const models_1 = require("../models");
 const schema_1 = require("../schema");
 const exceprions_1 = require("../../../shared/exceprions");
+const db_1 = require("../../../services/db");
 const getTestQuestions = (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
+    var _a;
     try {
         const isModuleTest = req.originalUrl.includes("modules");
         const courseId = req.params.courseId;
         const testId = req.params.testId;
-        const questions = yield models_1.TestQuestionModel.findMany({
-            where: {
+        const questions = yield models_1.TestQuestionModel.findMany(Object.assign({ where: {
                 testId,
-            },
-            include: {
-                choices: true,
-                test: true,
-            },
-        });
+            } }, (0, db_1.getFileds)((_a = req.query.v) !== null && _a !== void 0 ? _a : "")));
         return res.json({ results: questions });
     }
     catch (error) {
@@ -45,6 +41,7 @@ const getTestQuestion = (req, res, next) => __awaiter(void 0, void 0, void 0, fu
 });
 exports.getTestQuestion = getTestQuestion;
 const addTestQuestion = (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
+    var _a;
     try {
         const courseId = req.params.courseId;
         const testId = req.params.testId;
@@ -55,8 +52,7 @@ const addTestQuestion = (req, res, next) => __awaiter(void 0, void 0, void 0, fu
         if (!validation.success)
             throw new exceprions_1.APIException(400, validation.error.format());
         const { choices, question } = validation.data;
-        const course = yield models_1.CourseModel.update({
-            where: {
+        const course = yield models_1.CourseModel.update(Object.assign({ where: {
                 id: courseId,
                 instructorId: user.profile.instructor.id,
                 modules: isModuleTest
@@ -78,8 +74,7 @@ const addTestQuestion = (req, res, next) => __awaiter(void 0, void 0, void 0, fu
                             id: testId,
                         },
                     },
-            },
-            data: {
+            }, data: {
                 tests: isModuleTest
                     ? undefined
                     : {
@@ -127,9 +122,7 @@ const addTestQuestion = (req, res, next) => __awaiter(void 0, void 0, void 0, fu
                         },
                     }
                     : undefined,
-            },
-            include: models_1.courseInclude,
-        });
+            } }, (0, db_1.getFileds)((_a = req.query.v) !== null && _a !== void 0 ? _a : "")));
         return res.json(course);
     }
     catch (error) {
@@ -138,6 +131,7 @@ const addTestQuestion = (req, res, next) => __awaiter(void 0, void 0, void 0, fu
 });
 exports.addTestQuestion = addTestQuestion;
 const updateTestQuestions = (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
+    var _a;
     try {
         // NOTE: Does not delete choices wrather updates or creates if dont exist
         const isModuleTest = req.originalUrl.includes("modules");
@@ -150,8 +144,7 @@ const updateTestQuestions = (req, res, next) => __awaiter(void 0, void 0, void 0
         if (!validation.success)
             throw new exceprions_1.APIException(400, validation.error.format());
         const { choices, question } = validation.data;
-        const course = yield models_1.CourseModel.update({
-            where: {
+        const course = yield models_1.CourseModel.update(Object.assign({ where: {
                 id: courseId,
                 instructorId: user.profile.instructor.id,
                 modules: isModuleTest
@@ -183,8 +176,7 @@ const updateTestQuestions = (req, res, next) => __awaiter(void 0, void 0, void 0
                             },
                         },
                     },
-            },
-            data: {
+            }, data: {
                 tests: isModuleTest
                     ? undefined
                     : {
@@ -241,9 +233,7 @@ const updateTestQuestions = (req, res, next) => __awaiter(void 0, void 0, void 0
                         },
                     }
                     : undefined,
-            },
-            include: models_1.courseInclude,
-        });
+            } }, (0, db_1.getFileds)((_a = req.query.v) !== null && _a !== void 0 ? _a : "")));
         return res.json(course);
     }
     catch (error) {
@@ -252,6 +242,7 @@ const updateTestQuestions = (req, res, next) => __awaiter(void 0, void 0, void 0
 });
 exports.updateTestQuestions = updateTestQuestions;
 const deleteTestQuestions = (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
+    var _a;
     try {
         const isModuleTest = req.originalUrl.includes("modules");
         const questionId = req.params.questionId;
@@ -259,8 +250,7 @@ const deleteTestQuestions = (req, res, next) => __awaiter(void 0, void 0, void 0
         const testId = req.params.testId;
         const moduleId = req.params.moduleId;
         const user = req.user;
-        const course = yield models_1.CourseModel.update({
-            where: {
+        const course = yield models_1.CourseModel.update(Object.assign({ where: {
                 id: courseId,
                 instructorId: user.profile.instructor.id,
                 modules: isModuleTest
@@ -292,8 +282,7 @@ const deleteTestQuestions = (req, res, next) => __awaiter(void 0, void 0, void 0
                             },
                         },
                     },
-            },
-            data: {
+            }, data: {
                 tests: isModuleTest
                     ? undefined
                     : {
@@ -327,9 +316,7 @@ const deleteTestQuestions = (req, res, next) => __awaiter(void 0, void 0, void 0
                         },
                     },
                 },
-            },
-            include: models_1.courseInclude,
-        });
+            } }, (0, db_1.getFileds)((_a = req.query.v) !== null && _a !== void 0 ? _a : "")));
         return res.json(course);
     }
     catch (error) {

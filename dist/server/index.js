@@ -25,6 +25,7 @@ const routes_3 = __importDefault(require("../features/courses/routes"));
 const routes_4 = __importDefault(require("../features/instructors/routes"));
 const routes_5 = __importDefault(require("../features/students/routes"));
 const routes_6 = __importDefault(require("../features/payments/routes"));
+const routes_7 = __importDefault(require("../features/admin/routes"));
 /**
  * Handle database connection logic
  */
@@ -58,6 +59,7 @@ const configureExpressApp = (app) => __awaiter(void 0, void 0, void 0, function*
     app.use("/instructors", routes_4.default);
     app.use("/students", routes_5.default);
     app.use("/payments", routes_6.default);
+    app.use("/admin", routes_7.default);
     //-------------------end routes-----------------------------
     //---------------- error handler -----------------------
     app.use(middlewares_1.handleErrors);

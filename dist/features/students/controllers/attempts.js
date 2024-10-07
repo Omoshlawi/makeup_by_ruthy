@@ -14,14 +14,15 @@ const models_1 = require("../../courses/models");
 const schema_1 = require("../../courses/schema");
 const exceprions_1 = require("../../../shared/exceprions");
 const models_2 = require("../models");
+const db_1 = require("../../../services/db");
 const getTestAttempts = (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
+    var _a;
     try {
         const enrollmentId = req.params.enrollmentId;
         const testId = req.params.testId;
         const user = req.user;
         return res.json({
-            results: yield models_1.TestModel.findMany({
-                where: {
+            results: yield models_1.TestModel.findMany(Object.assign({ where: {
                     id: testId,
                     course: {
                         enrollments: {
@@ -31,23 +32,7 @@ const getTestAttempts = (req, res, next) => __awaiter(void 0, void 0, void 0, fu
                             },
                         },
                     },
-                },
-                include: {
-                    questions: {
-                        include: {
-                            choices: true,
-                        },
-                    },
-                    attempts: {
-                        include: {
-                            attemptQuestions: {
-                                include: { choice: true, question: true },
-                            },
-                            enrollement: true,
-                        },
-                    },
-                },
-            }),
+                } }, (0, db_1.getFileds)((_a = req.query.v) !== null && _a !== void 0 ? _a : ""))),
         });
     }
     catch (error) {
@@ -56,6 +41,7 @@ const getTestAttempts = (req, res, next) => __awaiter(void 0, void 0, void 0, fu
 });
 exports.getTestAttempts = getTestAttempts;
 const addTestAttempts = (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
+    var _a;
     try {
         const enrollmentId = req.params.enrollmentId;
         const testId = req.params.testId;
@@ -128,10 +114,7 @@ const addTestAttempts = (req, res, next) => __awaiter(void 0, void 0, void 0, fu
                 },
             },
         });
-        return res.json(yield models_2.EnrollmentModel.findFirstOrThrow({
-            where: { id: enrollmentId },
-            include: models_1.enrollmentInclude,
-        }));
+        return res.json(yield models_2.EnrollmentModel.findFirstOrThrow(Object.assign({ where: { id: enrollmentId } }, (0, db_1.getFileds)((_a = req.query.v) !== null && _a !== void 0 ? _a : ""))));
     }
     catch (error) {
         next(error);
@@ -139,13 +122,13 @@ const addTestAttempts = (req, res, next) => __awaiter(void 0, void 0, void 0, fu
 });
 exports.addTestAttempts = addTestAttempts;
 const deleteTestAttempts = (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
+    var _a;
     try {
         const enrollmentId = req.params.enrollmentId;
         const testId = req.params.testId;
         const attemptId = req.params.attemptId;
         const user = req.user;
-        const test = yield models_1.TestModel.update({
-            where: {
+        const test = yield models_1.TestModel.update(Object.assign({ where: {
                 id: testId,
                 course: {
                     enrollments: {
@@ -160,30 +143,13 @@ const deleteTestAttempts = (req, res, next) => __awaiter(void 0, void 0, void 0,
                         id: attemptId,
                     },
                 },
-            },
-            data: {
+            }, data: {
                 attempts: {
                     delete: {
                         id: attemptId,
                     },
                 },
-            },
-            include: {
-                questions: {
-                    include: {
-                        choices: true,
-                    },
-                },
-                attempts: {
-                    include: {
-                        attemptQuestions: {
-                            include: { choice: true, question: true },
-                        },
-                        enrollement: true,
-                    },
-                },
-            },
-        });
+            } }, (0, db_1.getFileds)((_a = req.query.v) !== null && _a !== void 0 ? _a : "")));
         return res.json(test);
     }
     catch (error) {

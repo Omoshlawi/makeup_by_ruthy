@@ -1,6 +1,6 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.accountSetupSchema = exports.ProfileSchema = void 0;
+exports.userSearchSchema = exports.accountSetupSchema = exports.ProfileSchema = void 0;
 const zod_1 = require("zod");
 exports.ProfileSchema = zod_1.z.object({
     name: zod_1.z.string(),
@@ -53,4 +53,10 @@ exports.accountSetupSchema = zod_1.z
     .refine((data) => !(data.userType == "Student" && !data.areasOfInterest), {
     message: "Areas of interest required",
     path: ["areasOfInterest"],
+});
+exports.userSearchSchema = zod_1.z.object({
+    search: zod_1.z.string().optional(),
+    page: zod_1.z.number({ coerce: true }).min(1).optional().default(1),
+    pageSize: zod_1.z.number({ coerce: true }).min(1).optional().default(10),
+    includeAll: zod_1.z.string().optional(),
 });

@@ -44,4 +44,5 @@ router.delete("/:id", courses_1.deleteCourse);
 router.use("/:courseId/modules", (0, validators_1.validateUUIDPathParam)("courseId"), modules_1.default);
 router.use("/:courseId/tests", [(0, validators_1.validateUUIDPathParam)("courseId"), authentication_1.default], tests_1.default);
 router.get("/:courseId/reviews", [(0, validators_1.validateUUIDPathParam)("courseId"), authentication_1.default], reviews_1.getCourseReviews);
+router.get("/:courseId/approval/:action", [(0, validators_1.validateUUIDPathParam)("courseId"), authentication_1.default, require_roles_1.requireAdmin], courses_1.toggleCourseApproval);
 exports.default = router;

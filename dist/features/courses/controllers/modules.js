@@ -13,7 +13,9 @@ exports.deleteCourseModule = exports.updateCourseModule = exports.addCourseModul
 const schema_1 = require("../schema");
 const exceprions_1 = require("../../../shared/exceprions");
 const models_1 = require("../models");
+const db_1 = require("../../../services/db");
 const addCourseModule = (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
+    var _a;
     try {
         const user = req.user;
         const courseId = req.params.courseId;
@@ -27,23 +29,14 @@ const addCourseModule = (req, res, next) => __awaiter(void 0, void 0, void 0, fu
                 title: { errors: ["Modules title for a course must be unique"] },
             });
         // TODO Handle module Orders later
-        const course = yield models_1.CourseModel.update({
-            where: {
+        const course = yield models_1.CourseModel.update(Object.assign({ where: {
                 id: courseId,
                 instructor: { profile: { userId: user.id } },
-            },
-            data: {
+            }, data: {
                 modules: {
                     create: validation.data,
                 },
-            },
-            include: {
-                _count: true,
-                instructor: true,
-                modules: { include: { content: true } },
-                topics: { include: { topic: true } },
-            },
-        });
+            } }, (0, db_1.getFileds)((_a = req.query.v) !== null && _a !== void 0 ? _a : "")));
         return res.json(course);
     }
     catch (error) {
@@ -52,6 +45,7 @@ const addCourseModule = (req, res, next) => __awaiter(void 0, void 0, void 0, fu
 });
 exports.addCourseModule = addCourseModule;
 const updateCourseModule = (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
+    var _a;
     try {
         const user = req.user;
         const courseId = req.params.courseId;
@@ -69,27 +63,18 @@ const updateCourseModule = (req, res, next) => __awaiter(void 0, void 0, void 0,
             throw new exceprions_1.APIException(400, {
                 title: { errors: ["Modules title for a course must be unique"] },
             });
-        const course = yield models_1.CourseModel.update({
-            where: {
+        const course = yield models_1.CourseModel.update(Object.assign({ where: {
                 id: courseId,
                 modules: { some: { id: moduleId } },
                 instructor: { profile: { userId: user.id } },
-            },
-            data: {
+            }, data: {
                 modules: {
                     update: {
                         data: validation.data,
                         where: { id: moduleId },
                     },
                 },
-            },
-            include: {
-                _count: true,
-                instructor: true,
-                modules: { include: { content: true } },
-                topics: { include: { topic: true } },
-            },
-        });
+            } }, (0, db_1.getFileds)((_a = req.query.v) !== null && _a !== void 0 ? _a : "")));
         return res.json(course);
     }
     catch (error) {
@@ -98,28 +83,20 @@ const updateCourseModule = (req, res, next) => __awaiter(void 0, void 0, void 0,
 });
 exports.updateCourseModule = updateCourseModule;
 const deleteCourseModule = (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
+    var _a;
     try {
         const user = req.user;
         const courseId = req.params.courseId;
         const moduleId = req.params.id;
-        const course = yield models_1.CourseModel.update({
-            where: {
+        const course = yield models_1.CourseModel.update(Object.assign({ where: {
                 id: courseId,
                 modules: { some: { id: moduleId } },
                 instructor: { profile: { userId: user.id } },
-            },
-            data: {
+            }, data: {
                 modules: {
                     delete: { id: moduleId },
                 },
-            },
-            include: {
-                _count: true,
-                instructor: true,
-                modules: { include: { content: true } },
-                topics: { include: { topic: true } },
-            },
-        });
+            } }, (0, db_1.getFileds)((_a = req.query.v) !== null && _a !== void 0 ? _a : "")));
         return res.json(course);
     }
     catch (error) {

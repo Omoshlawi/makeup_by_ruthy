@@ -67,6 +67,7 @@ export const getCourses = async (
             price: { gte: minPrice, lte: maxPrice },
             averageRating: { gte: rating, lt: rating ? rating + 1 : undefined },
             approved: include?.includes("unapproved") ? undefined : true,
+            status: "Published",
           },
           {
             OR: search

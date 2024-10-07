@@ -13,7 +13,9 @@ exports.deleteModuleContent = exports.updateModuleContent = exports.addModuleCon
 const schema_1 = require("../schema");
 const exceprions_1 = require("../../../shared/exceprions");
 const models_1 = require("../models");
+const db_1 = require("../../../services/db");
 const addModuleContent = (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
+    var _a;
     try {
         const user = req.user;
         const courseId = req.params.courseId;
@@ -28,13 +30,11 @@ const addModuleContent = (req, res, next) => __awaiter(void 0, void 0, void 0, f
                 title: { errors: ["Content title for a module must be unique"] },
             });
         // TODO Handle content Orders later
-        const course = yield models_1.CourseModel.update({
-            where: {
+        const course = yield models_1.CourseModel.update(Object.assign({ where: {
                 id: courseId,
                 instructor: { profile: { userId: user.id } },
                 modules: { some: { id: moduleId } },
-            },
-            data: {
+            }, data: {
                 modules: {
                     update: {
                         where: { id: moduleId },
@@ -45,14 +45,7 @@ const addModuleContent = (req, res, next) => __awaiter(void 0, void 0, void 0, f
                         },
                     },
                 },
-            },
-            include: {
-                _count: true,
-                instructor: true,
-                modules: { include: { content: true } },
-                topics: { include: { topic: true } },
-            },
-        });
+            } }, (0, db_1.getFileds)((_a = req.query.v) !== null && _a !== void 0 ? _a : "")));
         return res.json(course);
     }
     catch (error) {
@@ -61,6 +54,7 @@ const addModuleContent = (req, res, next) => __awaiter(void 0, void 0, void 0, f
 });
 exports.addModuleContent = addModuleContent;
 const updateModuleContent = (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
+    var _a;
     try {
         const user = req.user;
         const courseId = req.params.courseId;
@@ -80,15 +74,13 @@ const updateModuleContent = (req, res, next) => __awaiter(void 0, void 0, void 0
                 title: { errors: ["Content title for a module must be unique"] },
             });
         // TODO Handle content Orders later
-        const course = yield models_1.CourseModel.update({
-            where: {
+        const course = yield models_1.CourseModel.update(Object.assign({ where: {
                 id: courseId,
                 instructor: { profile: { userId: user.id } },
                 modules: {
                     some: { id: moduleId, content: { some: { id: contentId } } },
                 },
-            },
-            data: {
+            }, data: {
                 modules: {
                     update: {
                         where: { id: moduleId },
@@ -102,14 +94,7 @@ const updateModuleContent = (req, res, next) => __awaiter(void 0, void 0, void 0
                         },
                     },
                 },
-            },
-            include: {
-                _count: true,
-                instructor: true,
-                modules: { include: { content: true } },
-                topics: { include: { topic: true } },
-            },
-        });
+            } }, (0, db_1.getFileds)((_a = req.query.v) !== null && _a !== void 0 ? _a : "")));
         return res.json(course);
     }
     catch (error) {
@@ -118,20 +103,19 @@ const updateModuleContent = (req, res, next) => __awaiter(void 0, void 0, void 0
 });
 exports.updateModuleContent = updateModuleContent;
 const deleteModuleContent = (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
+    var _a;
     try {
         const user = req.user;
         const courseId = req.params.courseId;
         const moduleId = req.params.moduleId;
         const contentId = req.params.id;
-        const course = yield models_1.CourseModel.update({
-            where: {
+        const course = yield models_1.CourseModel.update(Object.assign({ where: {
                 id: courseId,
                 instructor: { profile: { userId: user.id } },
                 modules: {
                     some: { id: moduleId, content: { some: { id: contentId } } },
                 },
-            },
-            data: {
+            }, data: {
                 modules: {
                     update: {
                         where: { id: moduleId },
@@ -142,14 +126,7 @@ const deleteModuleContent = (req, res, next) => __awaiter(void 0, void 0, void 0
                         },
                     },
                 },
-            },
-            include: {
-                _count: true,
-                instructor: true,
-                modules: { include: { content: true } },
-                topics: { include: { topic: true } },
-            },
-        });
+            } }, (0, db_1.getFileds)((_a = req.query.v) !== null && _a !== void 0 ? _a : "")));
         return res.json(course);
     }
     catch (error) {

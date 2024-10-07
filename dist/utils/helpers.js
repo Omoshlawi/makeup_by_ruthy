@@ -12,7 +12,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.normalizeIp = exports.paginate = exports.checkPassword = exports.generateUserToken = exports.hashPassword = void 0;
+exports.normalizeIp = exports.checkPassword = exports.generateUserToken = exports.hashPassword = void 0;
 exports.parseMessage = parseMessage;
 exports.isValidURL = isValidURL;
 exports.normalizePhoneNumber = normalizePhoneNumber;
@@ -61,8 +61,6 @@ const checkPassword = (hash, password) => __awaiter(void 0, void 0, void 0, func
     return yield bcrypt_1.default.compare(password, hash);
 });
 exports.checkPassword = checkPassword;
-const paginate = (pageSize, page) => (page - 1) * pageSize;
-exports.paginate = paginate;
 function normalizePhoneNumber(phoneNumber) {
     // Define the regex pattern to capture the phone number part
     const kenyanPhoneNumberRegex = /^(\+?254|0)?((7|1)\d{8})$/;

@@ -11,6 +11,7 @@ import htmToPdf from "html-pdf";
 import path from "path";
 import { EnrollmentModel } from "../models";
 import { enrollmentValidationShema } from "../schema";
+import { getFileds } from "@/services/db";
 
 export const getStudents = async (
   req: Request,
@@ -20,11 +21,7 @@ export const getStudents = async (
   try {
     const students = await UserModel.findMany({
       where: { profile: { student: { isNot: null } } },
-      include: {
-        profile: {
-          include: { student: true },
-        },
-      },
+      ...getFileds((req.query.v as any) ?? ""),
     });
     return res.json({ results: students });
   } catch (error) {
@@ -92,23 +89,7 @@ export const enroll = async (
           },
         },
       },
-      include: {
-        course: true,
-        payment: {
-          select: {
-            amount: true,
-            mpesareceiptNumber: true,
-            complete: true,
-            phoneNumber: true,
-            createdAt: true,
-            updatedAt: true,
-            id: true,
-            transactionDate: true,
-            enrollmentId: true,
-            description: true,
-          },
-        },
-      },
+      ...getFileds((req.query.v as any) ?? ""),
     });
 
     return res.json({
@@ -195,24 +176,7 @@ export const completeEnrollmentPayement = async (
           }, // Create new payment
         },
       },
-      include: {
-        course: true,
-        reviews: true,
-        payment: {
-          select: {
-            amount: true,
-            mpesareceiptNumber: true,
-            complete: true,
-            phoneNumber: true,
-            createdAt: true,
-            updatedAt: true,
-            id: true,
-            transactionDate: true,
-            enrollmentId: true,
-            description: true,
-          },
-        },
-      },
+      ...getFileds((req.query.v as any) ?? ""),
     });
 
     return res.json({
@@ -235,7 +199,7 @@ export const getMyEnrollments = async (
     };
     const enrollments = await EnrollmentModel.findMany({
       where: { studentId: student.profile.student.id },
-      include: enrollmentInclude,
+      ...getFileds((req.query.v as any) ?? ""),
     });
     return res.json({ results: enrollments });
   } catch (error) {
@@ -252,9 +216,10 @@ export const getMyEnrollment = async (
     const student = (req as any).user as User & {
       profile: Profile & { student: Student };
     };
+
     const enrollments = await EnrollmentModel.findUniqueOrThrow({
       where: { studentId: student.profile.student.id, id: req.params.id },
-      include: enrollmentInclude,
+      ...getFileds((req.query.v as any) ?? ""),
     });
     return res.json(enrollments);
   } catch (error) {
@@ -370,47 +335,7 @@ export const progress = async (
       data: {
         progressPercentage,
       },
-      include: {
-        course: {
-          include: {
-            instructor: true,
-            modules: {
-              include: {
-                content: true,
-              },
-            },
-          },
-        },
-        moduleProgress: {
-          select: {
-            id: true,
-            moduleId: true,
-            contents: {
-              select: {
-                id: true,
-                contentId: true,
-                createdAt: true,
-              },
-            },
-            createdAt: true,
-            // _count: true,
-          },
-        },
-        payment: {
-          select: {
-            amount: true,
-            mpesareceiptNumber: true,
-            complete: true,
-            phoneNumber: true,
-            createdAt: true,
-            updatedAt: true,
-            id: true,
-            transactionDate: true,
-            enrollmentId: true,
-            description: true,
-          },
-        },
-      },
+      ...getFileds((req.query.v as any) ?? ""),
     });
 
     // Return updated enrollment with progresses

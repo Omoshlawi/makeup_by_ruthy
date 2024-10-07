@@ -13,19 +13,18 @@ exports.deleteTest = exports.updateTest = exports.addTest = exports.getTest = ex
 const exceprions_1 = require("../../../shared/exceprions");
 const models_1 = require("../models");
 const schema_1 = require("../schema");
+const db_1 = require("../../../services/db");
 const getTests = (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
+    var _a;
     try {
         const isModuleTest = req.originalUrl.includes("modules");
         const moduleId = req.params.moduleId;
         const courseId = req.params.courseId;
         return res.json({
-            results: yield models_1.TestModel.findMany({
-                where: {
+            results: yield models_1.TestModel.findMany(Object.assign({ where: {
                     courseId: isModuleTest ? undefined : courseId,
                     moduleId: isModuleTest ? moduleId : undefined,
-                },
-                include: models_1.courseInclude.tests.include,
-            }),
+                } }, (0, db_1.getFileds)((_a = req.query.v) !== null && _a !== void 0 ? _a : ""))),
         });
     }
     catch (error) {
@@ -34,19 +33,17 @@ const getTests = (req, res, next) => __awaiter(void 0, void 0, void 0, function*
 });
 exports.getTests = getTests;
 const getTest = (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
+    var _a;
     try {
         const isModuleTest = req.originalUrl.includes("modules");
         const moduleId = req.params.moduleId;
         const courseId = req.params.courseId;
         const testId = req.params.testId;
-        return res.json(yield models_1.TestModel.findUniqueOrThrow({
-            where: {
+        return res.json(yield models_1.TestModel.findUniqueOrThrow(Object.assign({ where: {
                 courseId: isModuleTest ? undefined : courseId,
                 id: testId,
                 moduleId: isModuleTest ? moduleId : undefined,
-            },
-            include: models_1.courseInclude.tests.include,
-        }));
+            } }, (0, db_1.getFileds)((_a = req.query.v) !== null && _a !== void 0 ? _a : ""))));
     }
     catch (error) {
         next(error);
@@ -54,6 +51,7 @@ const getTest = (req, res, next) => __awaiter(void 0, void 0, void 0, function* 
 });
 exports.getTest = getTest;
 const addTest = (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
+    var _a;
     try {
         const isModuleTest = req.originalUrl.includes("modules");
         const moduleId = req.params.moduleId;
@@ -64,8 +62,7 @@ const addTest = (req, res, next) => __awaiter(void 0, void 0, void 0, function* 
             throw new exceprions_1.APIException(400, validation.error.format());
         const { questions, title } = validation.data;
         // Create Test, Questions, and Choices in a single Prisma statement
-        const course = yield models_1.CourseModel.update({
-            where: {
+        const course = yield models_1.CourseModel.update(Object.assign({ where: {
                 id: courseId,
                 instructorId: user.profile.instructor.id,
                 modules: isModuleTest
@@ -75,8 +72,7 @@ const addTest = (req, res, next) => __awaiter(void 0, void 0, void 0, function* 
                         },
                     }
                     : undefined,
-            },
-            data: {
+            }, data: {
                 tests: isModuleTest
                     ? undefined
                     : {
@@ -120,9 +116,7 @@ const addTest = (req, res, next) => __awaiter(void 0, void 0, void 0, function* 
                             },
                         },
                     },
-            },
-            include: models_1.courseInclude,
-        });
+            } }, (0, db_1.getFileds)((_a = req.query.v) !== null && _a !== void 0 ? _a : "")));
         return res.json(course);
     }
     catch (error) {
@@ -131,6 +125,7 @@ const addTest = (req, res, next) => __awaiter(void 0, void 0, void 0, function* 
 });
 exports.addTest = addTest;
 const updateTest = (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
+    var _a;
     try {
         const isModuleTest = req.originalUrl.includes("modules");
         const moduleId = req.params.moduleId;
@@ -141,8 +136,7 @@ const updateTest = (req, res, next) => __awaiter(void 0, void 0, void 0, functio
         if (!validation.success)
             throw new exceprions_1.APIException(400, validation.error.format());
         const { title } = validation.data;
-        const course = yield models_1.CourseModel.update({
-            where: {
+        const course = yield models_1.CourseModel.update(Object.assign({ where: {
                 id: courseId,
                 instructorId: user.profile.instructor.id,
                 tests: isModuleTest
@@ -162,8 +156,7 @@ const updateTest = (req, res, next) => __awaiter(void 0, void 0, void 0, functio
                         },
                     }
                     : undefined,
-            },
-            data: {
+            }, data: {
                 tests: isModuleTest
                     ? undefined
                     : {
@@ -189,9 +182,7 @@ const updateTest = (req, res, next) => __awaiter(void 0, void 0, void 0, functio
                         },
                     }
                     : undefined,
-            },
-            include: models_1.courseInclude,
-        });
+            } }, (0, db_1.getFileds)((_a = req.query.v) !== null && _a !== void 0 ? _a : "")));
         return res.json(course);
     }
     catch (error) {
@@ -200,14 +191,14 @@ const updateTest = (req, res, next) => __awaiter(void 0, void 0, void 0, functio
 });
 exports.updateTest = updateTest;
 const deleteTest = (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
+    var _a;
     try {
         const isModuleTest = req.originalUrl.includes("modules");
         const moduleId = req.params.moduleId;
         const courseId = req.params.courseId;
         const testId = req.params.testId;
         const user = req.user;
-        const course = yield models_1.CourseModel.update({
-            where: {
+        const course = yield models_1.CourseModel.update(Object.assign({ where: {
                 id: courseId,
                 instructorId: user.profile.instructor.id,
                 tests: isModuleTest
@@ -227,8 +218,7 @@ const deleteTest = (req, res, next) => __awaiter(void 0, void 0, void 0, functio
                         },
                     }
                     : undefined,
-            },
-            data: {
+            }, data: {
                 tests: isModuleTest
                     ? undefined
                     : {
@@ -246,9 +236,7 @@ const deleteTest = (req, res, next) => __awaiter(void 0, void 0, void 0, functio
                         },
                     }
                     : undefined,
-            },
-            include: models_1.courseInclude,
-        });
+            } }, (0, db_1.getFileds)((_a = req.query.v) !== null && _a !== void 0 ? _a : "")));
         return res.json(course);
     }
     catch (error) {

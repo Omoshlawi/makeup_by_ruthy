@@ -1,6 +1,7 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.handlePrismaErrors = exports.ERROR_CODES = exports.prisma = void 0;
+exports.getFileds = exports.paginate = exports.handlePrismaErrors = exports.ERROR_CODES = exports.prisma = void 0;
+exports.parseCustomRepresentation = parseCustomRepresentation;
 const client_1 = require("@prisma/client");
 const globalForPrisma = global;
 exports.prisma = globalForPrisma.prisma || new client_1.PrismaClient();
@@ -39,3 +40,75 @@ const handlePrismaErrors = (e) => {
     }
 };
 exports.handlePrismaErrors = handlePrismaErrors;
+function parseCustomRepresentation(customRep) {
+    var _a;
+    const mode = (_a = customRep === null || customRep === void 0 ? void 0 : customRep.split(":")[0]) === null || _a === void 0 ? void 0 : _a.trim();
+    if (!["include", "select"].includes(mode))
+        return;
+    // Helper function to parse nested properties
+    function parseFields(fields) {
+        const result = {};
+        let currentKey = "";
+        let depth = 0;
+        let nested = "";
+        for (let char of fields) {
+            if (char === "(") {
+                depth++;
+                if (depth === 1) {
+                    continue;
+                }
+            }
+            else if (char === ")") {
+                depth--;
+                if (depth === 0) {
+                    result[currentKey.trim()] = { [mode]: parseFields(nested) };
+                    currentKey = "";
+                    nested = "";
+                    continue;
+                }
+            }
+            if (depth > 0) {
+                nested += char;
+            }
+            else if (char === ",") {
+                if (currentKey.trim()) {
+                    result[currentKey.trim()] = true; // Simple field
+                }
+                currentKey = "";
+            }
+            else {
+                currentKey += char;
+            }
+        }
+        if (currentKey.trim()) {
+            result[currentKey.trim()] = true; // Last simple field
+        }
+        return result;
+    }
+    const parsedFields = parseFields(customRep);
+    function processObject(obj) {
+        const processedObj = {};
+        for (const key in obj) {
+            if (typeof obj[key] === "object") {
+                processedObj[key.endsWith(":") ? key.slice(0, -1) : key] =
+                    processObject(obj[key]);
+            }
+            else {
+                processedObj[key] = obj[key];
+            }
+        }
+        return processedObj;
+    }
+    return processObject(parsedFields)[mode][mode];
+}
+const paginate = (pageSize, page) => (page - 1) * pageSize;
+exports.paginate = paginate;
+const getFileds = (v) => ({
+    include: (v === null || v === void 0 ? void 0 : v.startsWith("include:"))
+        ? parseCustomRepresentation(v !== null && v !== void 0 ? v : "")
+        : undefined,
+    select: (v === null || v === void 0 ? void 0 : v.startsWith("select:"))
+        ? parseCustomRepresentation(v !== null && v !== void 0 ? v : "")
+        : undefined,
+});
+exports.getFileds = getFileds;

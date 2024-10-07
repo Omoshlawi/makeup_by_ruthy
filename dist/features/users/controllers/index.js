@@ -9,11 +9,13 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
     });
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.setUpAccount = exports.getUsers = exports.viewProfile = exports.updateProfile = void 0;
+exports.setUpAccount = exports.perfomUserAction = exports.getUsers = exports.viewProfile = exports.updateProfile = void 0;
 const schema_1 = require("../schema");
 const exceprions_1 = require("../../../shared/exceprions");
 const models_1 = require("../models");
 const lodash_1 = require("lodash");
+const db_1 = require("../../../services/db");
+const db_2 = require("../../../services/db");
 const updateProfile = (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
     try {
         // const validation = await ProfileSchema.safeParseAsync(req.body);
@@ -72,14 +74,51 @@ const viewProfile = (req, res, next) => __awaiter(void 0, void 0, void 0, functi
 });
 exports.viewProfile = viewProfile;
 const getUsers = (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
+    var _a;
     try {
-        return res.json({ results: yield models_1.UserModel.findMany() });
+        const validation = yield schema_1.userSearchSchema.safeParseAsync(req.query);
+        if (!validation.success)
+            throw new exceprions_1.APIException(400, validation.error.format());
+        const { search, page, pageSize, includeAll } = validation.data;
+        const include = includeAll === null || includeAll === void 0 ? void 0 : includeAll.trim().split(",");
+        const results = yield models_1.UserModel.findMany(Object.assign({ where: {
+                AND: [
+                    {
+                        OR: search
+                            ? [
+                                { username: { contains: search } },
+                                { profile: { name: { contains: search } } },
+                                { profile: { email: { contains: search } } },
+                                { profile: { phoneNumber: { contains: search } } },
+                            ]
+                            : undefined,
+                    },
+                ],
+            }, skip: (0, db_1.paginate)(pageSize, page), take: pageSize, orderBy: { createdAt: "asc" } }, (0, db_2.getFileds)((_a = req.query.v) !== null && _a !== void 0 ? _a : "")));
+        return res.json({ results });
     }
     catch (error) {
         return next(error);
     }
 });
 exports.getUsers = getUsers;
+const perfomUserAction = (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
+    try {
+        const userId = req.params.userId;
+        const action = req.params.action;
+        if (!["activate", "deactivate"].includes(action))
+            throw new exceprions_1.APIException(404, { detail: "Not found" });
+        yield models_1.UserModel.update({
+            where: { id: userId, isActive: action !== "activate" },
+            data: { isActive: action === "activate" },
+        });
+        return res.json({ detail: `User ${action} successfull` });
+    }
+    catch (error) {
+        return next(error);
+    }
+});
+exports.perfomUserAction = perfomUserAction;
 const setUpAccount = (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
     try {
         const validatopn = yield schema_1.accountSetupSchema.safeParseAsync(req.body);

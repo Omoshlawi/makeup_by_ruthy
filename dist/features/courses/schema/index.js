@@ -1,6 +1,6 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.attemptValidationSchema = exports.contentValidationSchema = exports.moduleValidationSchema = exports.courseValidationSchema = exports.topicValidationSchema = exports.courseTestValidationSchema = exports.testQuestionValidationSChema = exports.myCourseSearchSchema = exports.courseSearchSchema = void 0;
+exports.attemptValidationSchema = exports.contentValidationSchema = exports.moduleValidationSchema = exports.courseValidationSchema = exports.topicValidationSchema = exports.courseTestValidationSchema = exports.testQuestionValidationSChema = exports.myCourseSearchSchema = exports.tagSearchSchema = exports.courseSearchSchema = void 0;
 const zod_1 = require("zod");
 exports.courseSearchSchema = zod_1.z.object({
     search: zod_1.z.string().optional(),
@@ -13,6 +13,15 @@ exports.courseSearchSchema = zod_1.z.object({
     page: zod_1.z.number({ coerce: true }).min(1).optional().default(1),
     pageSize: zod_1.z.number({ coerce: true }).min(1).optional().default(10),
     rating: zod_1.z.number({ coerce: true }).optional(),
+    includeAll: zod_1.z.string().optional(),
+    v: zod_1.z.string().optional(),
+});
+exports.tagSearchSchema = zod_1.z.object({
+    search: zod_1.z.string().optional(),
+    name: zod_1.z.string().optional(),
+    page: zod_1.z.number({ coerce: true }).min(1).optional().default(1),
+    pageSize: zod_1.z.number({ coerce: true }).min(1).optional().default(10),
+    v: zod_1.z.string().optional(),
 });
 exports.myCourseSearchSchema = zod_1.z.object({
     search: zod_1.z.string().optional(),
