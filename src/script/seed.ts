@@ -1,7 +1,10 @@
 import db from "@/services/db";
-import { faker } from "@faker-js/faker";
+import { faker, tr } from "@faker-js/faker";
 import path from "path";
 import fs from "fs";
+import { hashPassword } from "@/utils/helpers";
+import { CourseModel } from "@/features/courses/models";
+import { EnrollmentModel } from "@/features/students/models";
 
 // Define the directory path
 const mediaDir = path.join(process.cwd(), "media", "courses");
@@ -35,7 +38,7 @@ const getImage = () => {
   return `courses/${getRandomItem(images)}`;
 };
 
-const seedInstructors = async (instructorsCount: number) => {
+export const seedInstructors = async (instructorsCount: number) => {
   for (let index = 0; index < instructorsCount; index++) {
     console.log("[*]Creating provider ", index + 1);
     await db.instructor.create({
@@ -43,7 +46,7 @@ const seedInstructors = async (instructorsCount: number) => {
         experience: faker.number.int({ min: 1, max: 40 }),
         profile: {
           create: {
-            email: `${index}${faker.internet.email()}`,
+            email: `tutor${index}@gmail.com`,
             phoneNumber: `${faker.phone.number()}-${index}`,
             avatarUrl: getImage(),
             bio: faker.person.bio(),
@@ -51,8 +54,8 @@ const seedInstructors = async (instructorsCount: number) => {
             name: faker.person.fullName(),
             user: {
               create: {
-                password: faker.internet.password(),
-                username: `${faker.internet.userName()}${index}`,
+                password: await hashPassword("1234"),
+                username: `tutor${index}`,
                 profileUpdated: true,
               },
             },
@@ -181,5 +184,78 @@ const seedInstructors = async (instructorsCount: number) => {
   }
 };
 
-console.log("[*]Starting seeding ....");
-seedInstructors(100);
+export const seedStudents = async (studentsCount: number) => {
+  const enrollments = 10;
+  for (let index = 0; index < studentsCount; index++) {
+    console.log("[*]Creating student ", index + 1);
+    const student = await db.student.create({
+      data: {
+        skillLevel: faker.helpers.arrayElement([
+          "Beginner",
+          "Intermediate",
+          "Advanced",
+        ]),
+        profile: {
+          create: {
+            email: `stude${index}@gmail.com`,
+            phoneNumber: `${faker.phone.number()}-${index}`,
+            avatarUrl: getImage(),
+            bio: faker.person.bio(),
+            gender: faker.helpers.arrayElement(["Male", "Female", "Unknown"]),
+            name: faker.person.fullName(),
+            user: {
+              create: {
+                password: await hashPassword("1234"),
+                username: `stude${index}`,
+                profileUpdated: true,
+              },
+            },
+          },
+        },
+      },
+      include: { profile: true },
+    });
+    console.log(`[*]Enroll student ${index} to ${enrollments} courses`);
+    for (
+      let enrollmentIndex = 0;
+      enrollmentIndex < enrollments;
+      enrollmentIndex++
+    ) {
+      const randomCourse = await CourseModel.findFirst({
+        where: {
+          approved: true,
+          status: "Published",
+          enrollments: {
+            none: {
+              studentId: student.id,
+            },
+          },
+        },
+      });
+      if (!randomCourse) continue;
+      console.log(
+        `[${enrollmentIndex}]Enrolling student ${index} to course ${randomCourse?.title}`
+      );
+      await EnrollmentModel.create({
+        data: {
+          studentId: student.id,
+          courseId: randomCourse!.id,
+          cost: randomCourse!.price,
+          payment: {
+            create: {
+              complete: true,
+              checkoutRequestId: `checkoutId-${student.id}-${randomCourse!.id}`,
+              merchantRequestId: `machenantId-${student.id}-${
+                randomCourse!.id
+              }`,
+              amount: randomCourse!.price,
+              mpesareceiptNumber: faker.string.uuid(),
+              phoneNumber: student.profile.phoneNumber,
+              resultCode: "0",
+            },
+          },
+        },
+      });
+    }
+  }
+};

@@ -2,6 +2,7 @@ import db from "@/services/db";
 import { hashPassword } from "@/utils/helpers";
 import { log } from "console";
 import * as readline from "readline";
+import { seedInstructors, seedStudents } from "./seed";
 
 // Create an interface for readline
 const rl = readline.createInterface({
@@ -69,6 +70,14 @@ const deleteUser = async (username: string) => {
   });
 };
 
+const loggeErrorMessage = () => {
+  console.log("Invalid Command");
+  console.log("Supported Commands");
+  console.log(
+    "1. createSuperUser\n2. deleteUser\n3. seed instructors <number of instructors>\n4. seed students <number of students>"
+  );
+};
+
 const main = async () => {
   const args = process.argv.slice(2); // Slice to ignore the first two default arguments
   const comand = args[0] || ""; // First command-line argument (if any)
@@ -81,10 +90,23 @@ const main = async () => {
     } else {
       console.log("Required Unique user attribute");
     }
+  } else if (comand === "seed") {
+    if (!args[2]) {
+      return loggeErrorMessage();
+    }
+    if (args[1] === "instructors") {
+      console.log("[*]Seeding instructors");
+      await seedInstructors(parseInt(args[2]));
+      console.log("[*]Instructors seeding succesfull");
+    } else if (args[1] === "students") {
+      console.log("[*]Seeding students");
+      await seedStudents(parseInt(args[2]));
+      console.log("[*]Students seeding succesfull");
+    } else {
+      loggeErrorMessage();
+    }
   } else {
-    console.log("Invalid Command");
-    console.log("Supported Commands");
-    console.log("1. createSuperUser\n2. deleteUser");
+    loggeErrorMessage();
   }
   process.exit(0);
 };

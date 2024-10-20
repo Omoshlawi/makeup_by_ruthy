@@ -12,10 +12,14 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
+exports.seedStudents = exports.seedInstructors = void 0;
 const db_1 = __importDefault(require("../services/db"));
 const faker_1 = require("@faker-js/faker");
 const path_1 = __importDefault(require("path"));
 const fs_1 = __importDefault(require("fs"));
+const helpers_1 = require("../utils/helpers");
+const models_1 = require("../features/courses/models");
+const models_2 = require("../features/students/models");
 // Define the directory path
 const mediaDir = path_1.default.join(process.cwd(), "media", "courses");
 // Helper function to get a list of files with specified extensions
@@ -50,7 +54,7 @@ const seedInstructors = (instructorsCount) => __awaiter(void 0, void 0, void 0, 
                 experience: faker_1.faker.number.int({ min: 1, max: 40 }),
                 profile: {
                     create: {
-                        email: `${index}${faker_1.faker.internet.email()}`,
+                        email: `tutor${index}@gmail.com`,
                         phoneNumber: `${faker_1.faker.phone.number()}-${index}`,
                         avatarUrl: getImage(),
                         bio: faker_1.faker.person.bio(),
@@ -58,8 +62,8 @@ const seedInstructors = (instructorsCount) => __awaiter(void 0, void 0, void 0, 
                         name: faker_1.faker.person.fullName(),
                         user: {
                             create: {
-                                password: faker_1.faker.internet.password(),
-                                username: `${faker_1.faker.internet.userName()}${index}`,
+                                password: yield (0, helpers_1.hashPassword)("1234"),
+                                username: `tutor${index}`,
                                 profileUpdated: true,
                             },
                         },
@@ -170,5 +174,73 @@ const seedInstructors = (instructorsCount) => __awaiter(void 0, void 0, void 0, 
         });
     }
 });
-console.log("[*]Starting seeding ....");
-seedInstructors(100);
+exports.seedInstructors = seedInstructors;
+const seedStudents = (studentsCount) => __awaiter(void 0, void 0, void 0, function* () {
+    const enrollments = 10;
+    for (let index = 0; index < studentsCount; index++) {
+        console.log("[*]Creating student ", index + 1);
+        const student = yield db_1.default.student.create({
+            data: {
+                skillLevel: faker_1.faker.helpers.arrayElement([
+                    "Beginner",
+                    "Intermediate",
+                    "Advanced",
+                ]),
+                profile: {
+                    create: {
+                        email: `stude${index}@gmail.com`,
+                        phoneNumber: `${faker_1.faker.phone.number()}-${index}`,
+                        avatarUrl: getImage(),
+                        bio: faker_1.faker.person.bio(),
+                        gender: faker_1.faker.helpers.arrayElement(["Male", "Female", "Unknown"]),
+                        name: faker_1.faker.person.fullName(),
+                        user: {
+                            create: {
+                                password: yield (0, helpers_1.hashPassword)("1234"),
+                                username: `stude${index}`,
+                                profileUpdated: true,
+                            },
+                        },
+                    },
+                },
+            },
+            include: { profile: true },
+        });
+        console.log(`[*]Enroll student ${index} to ${enrollments} courses`);
+        for (let enrollmentIndex = 0; enrollmentIndex < enrollments; enrollmentIndex++) {
+            const randomCourse = yield models_1.CourseModel.findFirst({
+                where: {
+                    approved: true,
+                    status: "Published",
+                    enrollments: {
+                        none: {
+                            studentId: student.id,
+                        },
+                    },
+                },
+            });
+            if (!randomCourse)
+                continue;
+            console.log(`[${enrollmentIndex}]Enrolling student ${index} to course ${randomCourse === null || randomCourse === void 0 ? void 0 : randomCourse.title}`);
+            yield models_2.EnrollmentModel.create({
+                data: {
+                    studentId: student.id,
+                    courseId: randomCourse.id,
+                    cost: randomCourse.price,
+                    payment: {
+                        create: {
+                            complete: true,
+                            checkoutRequestId: `checkoutId-${student.id}-${randomCourse.id}`,
+                            merchantRequestId: `machenantId-${student.id}-${randomCourse.id}`,
+                            amount: randomCourse.price,
+                            mpesareceiptNumber: faker_1.faker.string.uuid(),
+                            phoneNumber: student.profile.phoneNumber,
+                            resultCode: "0",
+                        },
+                    },
+                },
+            });
+        }
+    }
+});
+exports.seedStudents = seedStudents;

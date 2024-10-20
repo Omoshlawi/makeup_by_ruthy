@@ -38,6 +38,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
 const db_1 = __importDefault(require("../services/db"));
 const helpers_1 = require("../utils/helpers");
 const readline = __importStar(require("readline"));
+const seed_1 = require("./seed");
 // Create an interface for readline
 const rl = readline.createInterface({
     input: process.stdin,
@@ -100,6 +101,11 @@ const deleteUser = (username) => __awaiter(void 0, void 0, void 0, function* () 
         },
     });
 });
+const loggeErrorMessage = () => {
+    console.log("Invalid Command");
+    console.log("Supported Commands");
+    console.log("1. createSuperUser\n2. deleteUser\n3. seed instructors <number of instructors>\n4. seed students <number of students>");
+};
 const main = () => __awaiter(void 0, void 0, void 0, function* () {
     const args = process.argv.slice(2); // Slice to ignore the first two default arguments
     const comand = args[0] || ""; // First command-line argument (if any)
@@ -115,10 +121,26 @@ const main = () => __awaiter(void 0, void 0, void 0, function* () {
             console.log("Required Unique user attribute");
         }
     }
+    else if (comand === "seed") {
+        if (!args[2]) {
+            return loggeErrorMessage();
+        }
+        if (args[1] === "instructors") {
+            console.log("[*]Seeding instructors");
+            yield (0, seed_1.seedInstructors)(parseInt(args[2]));
+            console.log("[*]Instructors seeding succesfull");
+        }
+        else if (args[1] === "students") {
+            console.log("[*]Seeding students");
+            yield (0, seed_1.seedStudents)(parseInt(args[2]));
+            console.log("[*]Students seeding succesfull");
+        }
+        else {
+            loggeErrorMessage();
+        }
+    }
     else {
-        console.log("Invalid Command");
-        console.log("Supported Commands");
-        console.log("1. createSuperUser\n2. deleteUser");
+        loggeErrorMessage();
     }
     process.exit(0);
 });
