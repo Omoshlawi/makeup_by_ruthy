@@ -24,16 +24,11 @@ const html_pdf_1 = __importDefault(require("html-pdf"));
 const path_1 = __importDefault(require("path"));
 const models_3 = require("../models");
 const schema_1 = require("../schema");
+const db_1 = require("../../../services/db");
 const getStudents = (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
+    var _a;
     try {
-        const students = yield models_2.UserModel.findMany({
-            where: { profile: { student: { isNot: null } } },
-            include: {
-                profile: {
-                    include: { student: true },
-                },
-            },
-        });
+        const students = yield models_2.UserModel.findMany(Object.assign({ where: { profile: { student: { isNot: null } } } }, (0, db_1.getFileds)((_a = req.query.v) !== null && _a !== void 0 ? _a : "")));
         return res.json({ results: students });
     }
     catch (error) {
@@ -42,6 +37,7 @@ const getStudents = (req, res, next) => __awaiter(void 0, void 0, void 0, functi
 });
 exports.getStudents = getStudents;
 const enroll = (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
+    var _a;
     try {
         // Validate payload
         const validation = yield schema_1.enrollmentValidationShema.safeParseAsync(req.body);
@@ -68,8 +64,7 @@ const enroll = (req, res, next) => __awaiter(void 0, void 0, void 0, function* (
         const { data } = yield (0, mpesa_1.triggerStkPush)(phoneNumber, Number(course.price), `Payment for course ${course.id}(${course.title})`);
         const { MerchantRequestID, CheckoutRequestID, ResponseCode, ResponseDescription, CustomerMessage, } = data !== null && data !== void 0 ? data : {};
         // Create enrollment
-        const enrollemt = yield models_3.EnrollmentModel.create({
-            data: {
+        const enrollemt = yield models_3.EnrollmentModel.create(Object.assign({ data: {
                 cost: course.price,
                 courseId: course.id,
                 studentId: student.profile.student.id,
@@ -81,25 +76,7 @@ const enroll = (req, res, next) => __awaiter(void 0, void 0, void 0, function* (
                         resultDescription: `${ResponseDescription}-${CustomerMessage}`,
                     },
                 },
-            },
-            include: {
-                course: true,
-                payment: {
-                    select: {
-                        amount: true,
-                        mpesareceiptNumber: true,
-                        complete: true,
-                        phoneNumber: true,
-                        createdAt: true,
-                        updatedAt: true,
-                        id: true,
-                        transactionDate: true,
-                        enrollmentId: true,
-                        description: true,
-                    },
-                },
-            },
-        });
+            } }, (0, db_1.getFileds)((_a = req.query.v) !== null && _a !== void 0 ? _a : "")));
         return res.json({
             detail: "Enrollment succesfull, KIndly complete payment to access course content",
             enrollment: enrollemt,
@@ -111,7 +88,7 @@ const enroll = (req, res, next) => __awaiter(void 0, void 0, void 0, function* (
 });
 exports.enroll = enroll;
 const completeEnrollmentPayement = (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
-    var _a;
+    var _a, _b;
     try {
         // Validate payload
         const validation = yield schema_1.enrollmentValidationShema.safeParseAsync(req.body);
@@ -150,11 +127,9 @@ const completeEnrollmentPayement = (req, res, next) => __awaiter(void 0, void 0,
         const { data } = yield (0, mpesa_1.triggerStkPush)(phoneNumber, Number(enrollment.course.price), `Payment for course ${enrollment.courseId}(${enrollment.course.title})`);
         const { MerchantRequestID, CheckoutRequestID, ResponseCode, ResponseDescription, CustomerMessage, } = data !== null && data !== void 0 ? data : {};
         // Update or create enrollment
-        enrollment = yield models_3.EnrollmentModel.update({
-            where: {
+        enrollment = yield models_3.EnrollmentModel.update(Object.assign({ where: {
                 id: enrollment.id,
-            },
-            data: {
+            }, data: {
                 cost: enrollment.course.price,
                 payment: {
                     delete: { id: (_a = enrollment.payment) === null || _a === void 0 ? void 0 : _a.id }, //First delete previous payment attempt if any
@@ -165,26 +140,7 @@ const completeEnrollmentPayement = (req, res, next) => __awaiter(void 0, void 0,
                         resultDescription: `${ResponseDescription}-${CustomerMessage}`,
                     }, // Create new payment
                 },
-            },
-            include: {
-                course: true,
-                reviews: true,
-                payment: {
-                    select: {
-                        amount: true,
-                        mpesareceiptNumber: true,
-                        complete: true,
-                        phoneNumber: true,
-                        createdAt: true,
-                        updatedAt: true,
-                        id: true,
-                        transactionDate: true,
-                        enrollmentId: true,
-                        description: true,
-                    },
-                },
-            },
-        });
+            } }, (0, db_1.getFileds)((_b = req.query.v) !== null && _b !== void 0 ? _b : "")));
         return res.json({
             detail: "KIndly complete mpesa payment to access course content",
             enrollment: enrollment,
@@ -196,12 +152,10 @@ const completeEnrollmentPayement = (req, res, next) => __awaiter(void 0, void 0,
 });
 exports.completeEnrollmentPayement = completeEnrollmentPayement;
 const getMyEnrollments = (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
+    var _a;
     try {
         const student = req.user;
-        const enrollments = yield models_3.EnrollmentModel.findMany({
-            where: { studentId: student.profile.student.id },
-            include: models_1.enrollmentInclude,
-        });
+        const enrollments = yield models_3.EnrollmentModel.findMany(Object.assign({ where: { studentId: student.profile.student.id } }, (0, db_1.getFileds)((_a = req.query.v) !== null && _a !== void 0 ? _a : "")));
         return res.json({ results: enrollments });
     }
     catch (error) {
@@ -210,12 +164,10 @@ const getMyEnrollments = (req, res, next) => __awaiter(void 0, void 0, void 0, f
 });
 exports.getMyEnrollments = getMyEnrollments;
 const getMyEnrollment = (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
+    var _a;
     try {
         const student = req.user;
-        const enrollments = yield models_3.EnrollmentModel.findUniqueOrThrow({
-            where: { studentId: student.profile.student.id, id: req.params.id },
-            include: models_1.enrollmentInclude,
-        });
+        const enrollments = yield models_3.EnrollmentModel.findUniqueOrThrow(Object.assign({ where: { studentId: student.profile.student.id, id: req.params.id } }, (0, db_1.getFileds)((_a = req.query.v) !== null && _a !== void 0 ? _a : "")));
         return res.json(enrollments);
     }
     catch (error) {
@@ -224,6 +176,7 @@ const getMyEnrollment = (req, res, next) => __awaiter(void 0, void 0, void 0, fu
 });
 exports.getMyEnrollment = getMyEnrollment;
 const progress = (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
+    var _a;
     /**
      * Assetain enrollment exist
      * Assertain enrollment payment is complete
@@ -310,55 +263,11 @@ const progress = (req, res, next) => __awaiter(void 0, void 0, void 0, function*
         const completedContents = enrollment.moduleProgress.reduce((acc, { _count: { contents } }) => acc + contents, 0);
         const progressPercentage = totalContents > 0 ? (completedContents / totalContents) * 100 : 0.0;
         // Update progress percentage
-        enrollment = yield models_3.EnrollmentModel.update({
-            where: {
+        enrollment = yield models_3.EnrollmentModel.update(Object.assign({ where: {
                 id: enrollmentId,
-            },
-            data: {
+            }, data: {
                 progressPercentage,
-            },
-            include: {
-                course: {
-                    include: {
-                        instructor: true,
-                        modules: {
-                            include: {
-                                content: true,
-                            },
-                        },
-                    },
-                },
-                moduleProgress: {
-                    select: {
-                        id: true,
-                        moduleId: true,
-                        contents: {
-                            select: {
-                                id: true,
-                                contentId: true,
-                                createdAt: true,
-                            },
-                        },
-                        createdAt: true,
-                        // _count: true,
-                    },
-                },
-                payment: {
-                    select: {
-                        amount: true,
-                        mpesareceiptNumber: true,
-                        complete: true,
-                        phoneNumber: true,
-                        createdAt: true,
-                        updatedAt: true,
-                        id: true,
-                        transactionDate: true,
-                        enrollmentId: true,
-                        description: true,
-                    },
-                },
-            },
-        });
+            } }, (0, db_1.getFileds)((_a = req.query.v) !== null && _a !== void 0 ? _a : "")));
         // Return updated enrollment with progresses
         return res.json(enrollment);
     }

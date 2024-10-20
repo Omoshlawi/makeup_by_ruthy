@@ -297,25 +297,27 @@ const deleteTestQuestions = (req, res, next) => __awaiter(void 0, void 0, void 0
                             },
                         },
                     },
-                modules: {
-                    update: {
-                        where: { id: moduleId },
-                        data: {
-                            tests: {
-                                update: {
-                                    where: { id: testId },
-                                    data: {
-                                        questions: {
-                                            delete: {
-                                                id: questionId,
+                modules: isModuleTest
+                    ? {
+                        update: {
+                            where: { id: moduleId },
+                            data: {
+                                tests: {
+                                    update: {
+                                        where: { id: testId },
+                                        data: {
+                                            questions: {
+                                                delete: {
+                                                    id: questionId,
+                                                },
                                             },
                                         },
                                     },
                                 },
                             },
                         },
-                    },
-                },
+                    }
+                    : undefined,
             } }, (0, db_1.getFileds)((_a = req.query.v) !== null && _a !== void 0 ? _a : "")));
         return res.json(course);
     }

@@ -47,6 +47,7 @@ const getCourses = (req, res, next) => __awaiter(void 0, void 0, void 0, functio
                         price: { gte: minPrice, lte: maxPrice },
                         averageRating: { gte: rating, lt: rating ? rating + 1 : undefined },
                         approved: (include === null || include === void 0 ? void 0 : include.includes("unapproved")) ? undefined : true,
+                        status: "Published",
                     },
                     {
                         OR: search
