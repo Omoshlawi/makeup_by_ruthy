@@ -93,7 +93,7 @@ export const addTest = async (
           : {
               create: {
                 order:
-                  order ?? (await TestModel.count({ where: { courseId } })),
+                  order ?? (await TestModel.count({ where: { courseId } })) + 1,
                 title,
                 questions: {
                   create: questions.map(({ question, choices }) => ({
@@ -118,7 +118,7 @@ export const addTest = async (
                     create: {
                       order:
                         order ??
-                        (await TestModel.count({ where: { moduleId } })),
+                        (await TestModel.count({ where: { moduleId } })) + 1,
                       title,
                       questions: {
                         create: questions.map(({ question, choices }) => ({

@@ -36,7 +36,7 @@ export const addCourseModule = async (
             ...validation.data,
             order:
               validation.data.order ??
-              (await CourseModuleModel.count({ where: { courseId } })),
+              (await CourseModuleModel.count({ where: { courseId } })) +  1,
           },
         },
       },

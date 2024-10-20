@@ -43,7 +43,7 @@ export const addModuleContent = async (
                   ...validation.data,
                   order:
                     validation.data.order ??
-                    (await ContentModel.count({ where: { moduleId } })),
+                    (await ContentModel.count({ where: { moduleId } })) + 1,
                 },
               },
             },

@@ -50,13 +50,13 @@ export const testQuestionValidationSChema = z.object({
     .refine((choices) => choices.some((choice) => choice.answer === true), {
       message: "At least one choice must be marked as the correct answer",
     }),
-  order: z.number({ coerce: true }).optional(),
+  order: z.number({ coerce: true }).min(1).optional(),
 });
 
 export const courseTestValidationSchema = z.object({
   title: z.string().min(1, "Required"),
   questions: z.array(testQuestionValidationSChema).optional().default([]),
-  order: z.number({ coerce: true }).optional(),
+  order: z.number({ coerce: true }).min(1).optional(),
 });
 
 export const topicValidationSchema = z.object({
@@ -83,14 +83,14 @@ export const courseValidationSchema = z.object({
 export const moduleValidationSchema = z.object({
   title: z.string().min(1, "Title required"),
   overview: z.string().min(10, "Overview too short").optional(),
-  order: z.number({ coerce: true }).min(-1).optional().default(-1),
+  order: z.number({ coerce: true }).min(1).optional(),
 });
 
 export const contentValidationSchema = z.object({
   title: z.string().min(1, "Title required"),
   type: z.enum(["Video", "Document", "Text", "Image"]),
   resource: z.string().min(1, "Required"),
-  order: z.number({ coerce: true }).min(-1).optional().default(-1),
+  order: z.number({ coerce: true }).min(1).optional()
 });
 
 export const attemptValidationSchema = z.object({

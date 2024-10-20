@@ -97,7 +97,8 @@ export const addTestQuestion = async (
                       question,
                       order:
                         order ??
-                        (await TestQuestionModel.count({ where: { testId } })),
+                        (await TestQuestionModel.count({ where: { testId } })) +
+                          1,
                       choices: {
                         createMany: {
                           skipDuplicates: true,
@@ -125,7 +126,7 @@ export const addTestQuestion = async (
                               order ??
                               (await TestQuestionModel.count({
                                 where: { testId },
-                              })),
+                              })) + 1,
                             choices: {
                               createMany: {
                                 skipDuplicates: true,
