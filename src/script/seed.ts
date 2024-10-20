@@ -1,10 +1,9 @@
-import db from "@/services/db";
-import { faker, tr } from "@faker-js/faker";
-import path from "path";
-import fs from "fs";
-import { hashPassword } from "@/utils/helpers";
-import { CourseModel } from "@/features/courses/models";
 import { EnrollmentModel } from "@/features/students/models";
+import db from "@/services/db";
+import { hashPassword } from "@/utils/helpers";
+import { faker } from "@faker-js/faker";
+import fs from "fs";
+import path from "path";
 
 // Define the directory path
 const mediaDir = path.join(process.cwd(), "media", "courses");
@@ -39,7 +38,8 @@ const getImage = () => {
 };
 
 export const seedInstructors = async (instructorsCount: number) => {
-  for (let index = 0; index < instructorsCount; index++) {
+  const start = await db.instructor.count();
+  for (let index = start; index < instructorsCount; index++) {
     console.log("[*]Creating provider ", index + 1);
     await db.instructor.create({
       data: {
@@ -186,7 +186,8 @@ export const seedInstructors = async (instructorsCount: number) => {
 
 export const seedStudents = async (studentsCount: number) => {
   const enrollments = 10;
-  for (let index = 0; index < studentsCount; index++) {
+  const start = await db.student.count();
+  for (let index = start; index < studentsCount; index++) {
     console.log("[*]Creating student ", index + 1);
     const student = await db.student.create({
       data: {
@@ -221,7 +222,7 @@ export const seedStudents = async (studentsCount: number) => {
       enrollmentIndex < enrollments;
       enrollmentIndex++
     ) {
-      const randomCourse = await CourseModel.findFirst({
+      const randomCourse = await db.course.findFirst({
         where: {
           approved: true,
           status: "Published",
@@ -236,7 +237,7 @@ export const seedStudents = async (studentsCount: number) => {
       console.log(
         `[${enrollmentIndex}]Enrolling student ${index} to course ${randomCourse?.title}`
       );
-      await EnrollmentModel.create({
+      await db.enrollment.create({
         data: {
           studentId: student.id,
           courseId: randomCourse!.id,
