@@ -32,7 +32,12 @@ export const addCourseModule = async (
       },
       data: {
         modules: {
-          create: validation.data,
+          create: {
+            ...validation.data,
+            order:
+              validation.data.order ??
+              (await CourseModuleModel.count({ where: { courseId } })),
+          },
         },
       },
       ...getFileds((req.query.v as any) ?? ""),

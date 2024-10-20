@@ -1,0 +1,5 @@
+-- AlterTable
+ALTER TABLE "Test" ADD COLUMN     "order" INTEGER NOT NULL DEFAULT 0;
+
+-- AlterTable
+ALTER TABLE "TestQuestion" ADD COLUMN     "order" INTEGER NOT NULL DEFAULT 0;

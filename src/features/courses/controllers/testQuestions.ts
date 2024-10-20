@@ -60,7 +60,7 @@ export const addTestQuestion = async (
     if (!validation.success)
       throw new APIException(400, validation.error.format());
 
-    const { choices, question } = validation.data;
+    const { choices, question, order } = validation.data;
     const course = await CourseModel.update({
       where: {
         id: courseId,
@@ -95,6 +95,9 @@ export const addTestQuestion = async (
                   questions: {
                     create: {
                       question,
+                      order:
+                        order ??
+                        (await TestQuestionModel.count({ where: { testId } })),
                       choices: {
                         createMany: {
                           skipDuplicates: true,
@@ -118,6 +121,11 @@ export const addTestQuestion = async (
                         questions: {
                           create: {
                             question,
+                            order:
+                              order ??
+                              (await TestQuestionModel.count({
+                                where: { testId },
+                              })),
                             choices: {
                               createMany: {
                                 skipDuplicates: true,
@@ -166,7 +174,7 @@ export const updateTestQuestions = async (
     if (!validation.success)
       throw new APIException(400, validation.error.format());
 
-    const { choices, question } = validation.data;
+    const { choices, question, order } = validation.data;
     const course = await CourseModel.update({
       where: {
         id: courseId,
@@ -212,6 +220,7 @@ export const updateTestQuestions = async (
                     update: {
                       where: { id: questionId },
                       data: {
+                        order,
                         question,
                         choices: {
                           deleteMany: {
@@ -238,6 +247,7 @@ export const updateTestQuestions = async (
                           update: {
                             where: { id: questionId },
                             data: {
+                              order,
                               question,
                               choices: {
                                 deleteMany: {

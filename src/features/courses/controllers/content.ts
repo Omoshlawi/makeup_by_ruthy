@@ -39,7 +39,12 @@ export const addModuleContent = async (
             where: { id: moduleId },
             data: {
               content: {
-                create: validation.data,
+                create: {
+                  ...validation.data,
+                  order:
+                    validation.data.order ??
+                    (await ContentModel.count({ where: { moduleId } })),
+                },
               },
             },
           },

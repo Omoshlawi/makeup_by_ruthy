@@ -72,7 +72,7 @@ export const addTest = async (
     if (!validation.success)
       throw new APIException(400, validation.error.format());
 
-    const { questions, title } = validation.data;
+    const { questions, title, order } = validation.data;
     // Create Test, Questions, and Choices in a single Prisma statement
     const course = await CourseModel.update({
       where: {
@@ -92,6 +92,8 @@ export const addTest = async (
           ? undefined
           : {
               create: {
+                order:
+                  order ?? (await TestModel.count({ where: { courseId } })),
                 title,
                 questions: {
                   create: questions.map(({ question, choices }) => ({
@@ -114,6 +116,9 @@ export const addTest = async (
                 data: {
                   tests: {
                     create: {
+                      order:
+                        order ??
+                        (await TestModel.count({ where: { moduleId } })),
                       title,
                       questions: {
                         create: questions.map(({ question, choices }) => ({
@@ -160,7 +165,7 @@ export const updateTest = async (
     if (!validation.success)
       throw new APIException(400, validation.error.format());
 
-    const { title } = validation.data;
+    const { title, questions, order } = validation.data;
 
     const course = await CourseModel.update({
       where: {
@@ -192,6 +197,7 @@ export const updateTest = async (
                 where: { id: testId },
                 data: {
                   title,
+                  order,
                 },
               },
             },
@@ -203,7 +209,7 @@ export const updateTest = async (
                   tests: {
                     update: {
                       where: { id: testId },
-                      data: { title },
+                      data: { title, order },
                     },
                   },
                 },

@@ -114,7 +114,7 @@ model Course {
   modules        Module[]
   topics         CourseTopic[]
   tests          Test[]
-  averageRating  Float @default(0.0)//caches avg rating after every addition of review
+  averageRating  Float         @default(0.0) //caches avg rating after every addition of review
 }
 
 model CourseTopic {
@@ -230,6 +230,7 @@ model Payment {
 model Test {
   id        String         @id @unique @default(uuid())
   title     String
+  order     Int            @default(0)
   courseId  String?
   course    Course?        @relation(fields: [courseId], onDelete: Cascade, references: [id])
   moduleId  String?
@@ -244,8 +245,9 @@ model Test {
 }
 
 model TestQuestion {
-  id        String                @id @unique @default(uuid())
-  testId    String
+  id     String @id @unique @default(uuid())
+  testId String
+  order  Int    @default(0)
   test      Test                  @relation(fields: [testId], onDelete: Cascade, references: [id])
   question  String
   createdAt DateTime              @default(now())

@@ -50,11 +50,13 @@ export const testQuestionValidationSChema = z.object({
     .refine((choices) => choices.some((choice) => choice.answer === true), {
       message: "At least one choice must be marked as the correct answer",
     }),
+  order: z.number({ coerce: true }).optional(),
 });
 
 export const courseTestValidationSchema = z.object({
   title: z.string().min(1, "Required"),
   questions: z.array(testQuestionValidationSChema).optional().default([]),
+  order: z.number({ coerce: true }).optional(),
 });
 
 export const topicValidationSchema = z.object({
