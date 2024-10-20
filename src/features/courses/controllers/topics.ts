@@ -22,8 +22,8 @@ export const getTopics = async (
         AND: [
           {
             OR: [
-              { name: { contains: search } },
-              { overview: { contains: search } },
+              { name: { contains: search, mode: "insensitive" } },
+              { overview: { contains: search, mode: "insensitive" } },
             ],
           },
         ],

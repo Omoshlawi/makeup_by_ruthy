@@ -91,10 +91,22 @@ export const getUsers = async (
           {
             OR: search
               ? [
-                  { username: { contains: search } },
-                  { profile: { name: { contains: search } } },
-                  { profile: { email: { contains: search } } },
-                  { profile: { phoneNumber: { contains: search } } },
+                  { username: { contains: search, mode: "insensitive" } },
+                  {
+                    profile: {
+                      name: { contains: search, mode: "insensitive" },
+                    },
+                  },
+                  {
+                    profile: {
+                      email: { contains: search, mode: "insensitive" },
+                    },
+                  },
+                  {
+                    profile: {
+                      phoneNumber: { contains: search, mode: "insensitive" },
+                    },
+                  },
                 ]
               : undefined,
           },

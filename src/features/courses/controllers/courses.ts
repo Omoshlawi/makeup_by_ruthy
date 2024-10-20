@@ -75,11 +75,14 @@ export const getCourses = async (
                   {
                     title: {
                       contains: search,
+                      mode: "insensitive",
                     },
                   },
                   {
                     overview: {
                       contains: search,
+                      mode: "insensitive",
+
                     },
                   },
                   {
@@ -154,11 +157,15 @@ export const getMyCourses = async (
                   {
                     title: {
                       contains: search,
+                      mode: "insensitive",
+
                     },
                   },
                   {
                     overview: {
                       contains: search,
+                      mode: "insensitive",
+
                     },
                   },
                   {

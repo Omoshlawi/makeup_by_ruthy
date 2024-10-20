@@ -40,12 +40,14 @@ export const getInstructors = async (
                   {
                     username: {
                       contains: search,
+                      mode: "insensitive",
                     },
                   },
                   {
                     profile: {
                       name: {
                         contains: search,
+                        mode: "insensitive",
                       },
                     },
                   },
