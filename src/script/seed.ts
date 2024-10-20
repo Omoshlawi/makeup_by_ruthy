@@ -75,7 +75,7 @@ export const seedInstructors = async (instructorsCount: number) => {
               previewVideo: { url: getVideo(), source: "file" },
               price: faker.number.float({ min: 1000, max: 150000 }),
               thumbnail: getImage(),
-              timeToComplete: faker.number.float({ min: 15, max: 36000 }),
+              timeToComplete: faker.number.float({ min: 15, max: 14400 }),
               title: `${faker.company.name()} ${i1}`,
               approved: faker.helpers.arrayElement([true, false]),
               averageRating: faker.number.float({
@@ -105,6 +105,7 @@ export const seedInstructors = async (instructorsCount: number) => {
                   );
                   return {
                     title: `${faker.lorem.words(3)} ${i2}`,
+                    order: i2 + 1,
                     questions: {
                       create: Array.from({ length: 10 }).map((_, i3) => {
                         console.log(
@@ -113,6 +114,7 @@ export const seedInstructors = async (instructorsCount: number) => {
 
                         return {
                           question: `${faker.lorem.sentence()} ${i3}`,
+                          order: i3 + 1,
                           choices: {
                             create: Array.from({ length: 10 }).map((_, i4) => {
                               console.log(
@@ -145,7 +147,7 @@ export const seedInstructors = async (instructorsCount: number) => {
                   return {
                     title: `${faker.lorem.words(3)} ${i5}`,
                     overview: faker.lorem.paragraph(),
-                    order: 1,
+                    order: i5 + 1,
                     content: {
                       create: Array.from({ length: 10 }).map((_, i6) => {
                         console.log(
@@ -167,7 +169,7 @@ export const seedInstructors = async (instructorsCount: number) => {
                               : type === "Text"
                               ? faker.lorem.paragraphs(5)
                               : "courses/makeup-by-ruthie-1.0.0-1724739532118-240826-plso-update-on-the-kuppet-nationwide-strike-01.pdf", //HERE
-                          order: 1,
+                          order: i6 + 1,
                           title: `${faker.lorem.words(2)} ${i6}`,
                           type: type as any,
                         };
