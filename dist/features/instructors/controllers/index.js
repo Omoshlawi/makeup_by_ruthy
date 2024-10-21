@@ -44,12 +44,14 @@ const getInstructors = (req, res, next) => __awaiter(void 0, void 0, void 0, fun
                                 {
                                     username: {
                                         contains: search,
+                                        mode: "insensitive",
                                     },
                                 },
                                 {
                                     profile: {
                                         name: {
                                             contains: search,
+                                            mode: "insensitive",
                                         },
                                     },
                                 },

@@ -104,7 +104,7 @@ const deleteUser = (username) => __awaiter(void 0, void 0, void 0, function* () 
 const loggeErrorMessage = () => {
     console.log("Invalid Command");
     console.log("Supported Commands");
-    console.log("1. createSuperUser\n2. deleteUser\n3. seed instructors <number of instructors>\n4. seed students <number of students>");
+    console.log("1. createSuperUser\n2. deleteUser\n3. seed instructors <number of instructors>\n4. seed students <number of students>\n5.seed topics <number of topics>");
 };
 const main = () => __awaiter(void 0, void 0, void 0, function* () {
     const args = process.argv.slice(2); // Slice to ignore the first two default arguments
@@ -134,6 +134,11 @@ const main = () => __awaiter(void 0, void 0, void 0, function* () {
             console.log("[*]Seeding students");
             yield (0, seed_1.seedStudents)(parseInt(args[2]));
             console.log("[*]Students seeding succesfull");
+        }
+        else if (args[1] === "topics") {
+            console.log("[*]Seeding topics");
+            yield (0, seed_1.seedTopics)(parseInt(args[2]));
+            console.log("[*]Topics seeding succesfull");
         }
         else {
             loggeErrorMessage();

@@ -1,7 +1,7 @@
 import { EnrollmentModel } from "@/features/students/models";
 import db from "@/services/db";
 import { hashPassword } from "@/utils/helpers";
-import { faker } from "@faker-js/faker";
+import { fa, faker } from "@faker-js/faker";
 import fs from "fs";
 import path from "path";
 
@@ -49,7 +49,26 @@ export const seedInstructors = async (instructorsCount: number) => {
             email: `tutor${index}@gmail.com`,
             phoneNumber: `${faker.phone.number()}-${index}`,
             avatarUrl: getImage(),
-            bio: faker.person.bio(),
+            bio: JSON.stringify([
+              { insert: "Bio", attributes: { bold: true } },
+              { insert: faker.person.bio() },
+              { insert: "\n\n" },
+              {
+                insert:
+                  "Topic one is all about testing the text input making sure everything is in place",
+                attributes: { italic: true },
+              },
+              { insert: "\n\nKindly do the following\nlaurent ouma" },
+              { insert: "\n", attributes: { list: "unchecked" } },
+              { insert: "Jeff jakoyugi" },
+              { insert: "\n", attributes: { list: "unchecked" } },
+              { insert: "Saly Angienda" },
+              { insert: "\n", attributes: { list: "checked" } },
+              {
+                insert:
+                  "\n\nAn updated version hoes here, this is incredible dude bt you gave it you best short... That more than enough for thankz\n",
+              },
+            ]),
             gender: faker.helpers.arrayElement(["Male", "Female", "Unknown"]),
             name: faker.person.fullName(),
             user: {
@@ -75,7 +94,7 @@ export const seedInstructors = async (instructorsCount: number) => {
               previewVideo: { url: getVideo(), source: "file" },
               price: faker.number.float({ min: 1000, max: 150000 }),
               thumbnail: getImage(),
-              timeToComplete: faker.number.float({ min: 15, max: 14400 }),
+              timeToComplete: faker.number.float({ min: 15, max: 14400 - 1 }),
               title: `${faker.company.name()} ${i1}`,
               approved: faker.helpers.arrayElement([true, false]),
               averageRating: faker.number.float({
@@ -137,7 +156,26 @@ export const seedInstructors = async (instructorsCount: number) => {
                 }),
               },
               status: faker.helpers.arrayElement(["Published", "Draft"]),
-              overview: faker.lorem.paragraphs(),
+              overview: JSON.stringify([
+                { insert: "Course Overview", attributes: { bold: true } },
+                { insert: faker.lorem.paragraphs() },
+                { insert: "\n\n" },
+                {
+                  insert:
+                    "Topic one is all about testing the text input making sure everything is in place",
+                  attributes: { italic: true },
+                },
+                { insert: "\n\nKindly do the following\nlaurent ouma" },
+                { insert: "\n", attributes: { list: "unchecked" } },
+                { insert: "Jeff jakoyugi" },
+                { insert: "\n", attributes: { list: "unchecked" } },
+                { insert: "Saly Angienda" },
+                { insert: "\n", attributes: { list: "checked" } },
+                {
+                  insert:
+                    "\n\nAn updated version hoes here, this is incredible dude bt you gave it you best short... That more than enough for thankz\n",
+                },
+              ]),
               modules: {
                 create: Array.from({ length: 10 }).map((_, i5) => {
                   console.log(
@@ -146,7 +184,26 @@ export const seedInstructors = async (instructorsCount: number) => {
 
                   return {
                     title: `${faker.lorem.words(3)} ${i5}`,
-                    overview: faker.lorem.paragraph(),
+                    overview: JSON.stringify([
+                      { insert: "Module Overview", attributes: { bold: true } },
+                      { insert: faker.lorem.paragraphs() },
+                      { insert: "\n\n" },
+                      {
+                        insert:
+                          "Topic one is all about testing the text input making sure everything is in place",
+                        attributes: { italic: true },
+                      },
+                      { insert: "\n\nKindly do the following\nlaurent ouma" },
+                      { insert: "\n", attributes: { list: "unchecked" } },
+                      { insert: "Jeff jakoyugi" },
+                      { insert: "\n", attributes: { list: "unchecked" } },
+                      { insert: "Saly Angienda" },
+                      { insert: "\n", attributes: { list: "checked" } },
+                      {
+                        insert:
+                          "\n\nAn updated version hoes here, this is incredible dude bt you gave it you best short... That more than enough for thankz\n",
+                      },
+                    ]),
                     order: i5 + 1,
                     content: {
                       create: Array.from({ length: 10 }).map((_, i6) => {
@@ -203,7 +260,26 @@ export const seedStudents = async (studentsCount: number) => {
             email: `stude${index}@gmail.com`,
             phoneNumber: `${faker.phone.number()}-${index}`,
             avatarUrl: getImage(),
-            bio: faker.person.bio(),
+            bio: JSON.stringify([
+              { insert: "Bio", attributes: { bold: true } },
+              { insert: faker.person.bio() },
+              { insert: "\n\n" },
+              {
+                insert:
+                  "Topic one is all about testing the text input making sure everything is in place",
+                attributes: { italic: true },
+              },
+              { insert: "\n\nKindly do the following\nlaurent ouma" },
+              { insert: "\n", attributes: { list: "unchecked" } },
+              { insert: "Jeff jakoyugi" },
+              { insert: "\n", attributes: { list: "unchecked" } },
+              { insert: "Saly Angienda" },
+              { insert: "\n", attributes: { list: "checked" } },
+              {
+                insert:
+                  "\n\nAn updated version hoes here, this is incredible dude bt you gave it you best short... That more than enough for thankz\n",
+              },
+            ]),
             gender: faker.helpers.arrayElement(["Male", "Female", "Unknown"]),
             name: faker.person.fullName(),
             user: {
@@ -261,4 +337,37 @@ export const seedStudents = async (studentsCount: number) => {
       });
     }
   }
+};
+
+export const seedTopics = async (topicsCount: number) => {
+  await Promise.all(
+    Array.from({ length: topicsCount }).map((_, index) =>
+      db.topic.create({
+        data: {
+          name: faker.company.name(),
+          thumbnail: getImage(),
+          overview: JSON.stringify([
+            { insert: "Topic Overview", attributes: { bold: true } },
+            { insert: faker.lorem.paragraphs(3) },
+            { insert: "\n\n" },
+            {
+              insert:
+                "Topic one is all about testing the text input making sure everything is in place",
+              attributes: { italic: true },
+            },
+            { insert: "\n\nKindly do the following\nlaurent ouma" },
+            { insert: "\n", attributes: { list: "unchecked" } },
+            { insert: "Jeff jakoyugi" },
+            { insert: "\n", attributes: { list: "unchecked" } },
+            { insert: "Saly Angienda" },
+            { insert: "\n", attributes: { list: "checked" } },
+            {
+              insert:
+                "\n\nAn updated version hoes here, this is incredible dude bt you gave it you best short... That more than enough for thankz\n",
+            },
+          ]),
+        },
+      })
+    )
+  );
 };

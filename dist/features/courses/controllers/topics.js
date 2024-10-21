@@ -26,8 +26,8 @@ const getTopics = (req, res, next) => __awaiter(void 0, void 0, void 0, function
                 AND: [
                     {
                         OR: [
-                            { name: { contains: search } },
-                            { overview: { contains: search } },
+                            { name: { contains: search, mode: "insensitive" } },
+                            { overview: { contains: search, mode: "insensitive" } },
                         ],
                     },
                 ],

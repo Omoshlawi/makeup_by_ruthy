@@ -55,11 +55,13 @@ const getCourses = (req, res, next) => __awaiter(void 0, void 0, void 0, functio
                                 {
                                     title: {
                                         contains: search,
+                                        mode: "insensitive",
                                     },
                                 },
                                 {
                                     overview: {
                                         contains: search,
+                                        mode: "insensitive",
                                     },
                                 },
                                 {
@@ -110,11 +112,13 @@ const getMyCourses = (req, res, next) => __awaiter(void 0, void 0, void 0, funct
                                 {
                                     title: {
                                         contains: search,
+                                        mode: "insensitive",
                                     },
                                 },
                                 {
                                     overview: {
                                         contains: search,
+                                        mode: "insensitive",
                                     },
                                 },
                                 {

@@ -51,7 +51,7 @@ const addTestQuestion = (req, res, next) => __awaiter(void 0, void 0, void 0, fu
         const validation = yield schema_1.testQuestionValidationSChema.safeParseAsync(req.body);
         if (!validation.success)
             throw new exceprions_1.APIException(400, validation.error.format());
-        const { choices, question } = validation.data;
+        const { choices, question, order } = validation.data;
         const course = yield models_1.CourseModel.update(Object.assign({ where: {
                 id: courseId,
                 instructorId: user.profile.instructor.id,
@@ -84,6 +84,8 @@ const addTestQuestion = (req, res, next) => __awaiter(void 0, void 0, void 0, fu
                                 questions: {
                                     create: {
                                         question,
+                                        order: order !== null && order !== void 0 ? order : (yield models_1.TestQuestionModel.count({ where: { testId } })) +
+                                            1,
                                         choices: {
                                             createMany: {
                                                 skipDuplicates: true,
@@ -107,6 +109,9 @@ const addTestQuestion = (req, res, next) => __awaiter(void 0, void 0, void 0, fu
                                             questions: {
                                                 create: {
                                                     question,
+                                                    order: order !== null && order !== void 0 ? order : (yield models_1.TestQuestionModel.count({
+                                                        where: { testId },
+                                                    })) + 1,
                                                     choices: {
                                                         createMany: {
                                                             skipDuplicates: true,
@@ -143,7 +148,7 @@ const updateTestQuestions = (req, res, next) => __awaiter(void 0, void 0, void 0
         const validation = yield schema_1.testQuestionValidationSChema.safeParseAsync(req.body);
         if (!validation.success)
             throw new exceprions_1.APIException(400, validation.error.format());
-        const { choices, question } = validation.data;
+        const { choices, question, order } = validation.data;
         const course = yield models_1.CourseModel.update(Object.assign({ where: {
                 id: courseId,
                 instructorId: user.profile.instructor.id,
@@ -187,6 +192,7 @@ const updateTestQuestions = (req, res, next) => __awaiter(void 0, void 0, void 0
                                     update: {
                                         where: { id: questionId },
                                         data: {
+                                            order,
                                             question,
                                             choices: {
                                                 deleteMany: {
@@ -213,6 +219,7 @@ const updateTestQuestions = (req, res, next) => __awaiter(void 0, void 0, void 0
                                                 update: {
                                                     where: { id: questionId },
                                                     data: {
+                                                        order,
                                                         question,
                                                         choices: {
                                                             deleteMany: {

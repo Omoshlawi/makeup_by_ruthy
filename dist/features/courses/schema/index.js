@@ -47,10 +47,12 @@ exports.testQuestionValidationSChema = zod_1.z.object({
         .refine((choices) => choices.some((choice) => choice.answer === true), {
         message: "At least one choice must be marked as the correct answer",
     }),
+    order: zod_1.z.number({ coerce: true }).min(1).optional(),
 });
 exports.courseTestValidationSchema = zod_1.z.object({
     title: zod_1.z.string().min(1, "Required"),
     questions: zod_1.z.array(exports.testQuestionValidationSChema).optional().default([]),
+    order: zod_1.z.number({ coerce: true }).min(1).optional(),
 });
 exports.topicValidationSchema = zod_1.z.object({
     name: zod_1.z.string().max(191).min(1, "Topic name required"),
@@ -74,13 +76,13 @@ exports.courseValidationSchema = zod_1.z.object({
 exports.moduleValidationSchema = zod_1.z.object({
     title: zod_1.z.string().min(1, "Title required"),
     overview: zod_1.z.string().min(10, "Overview too short").optional(),
-    order: zod_1.z.number({ coerce: true }).min(-1).optional().default(-1),
+    order: zod_1.z.number({ coerce: true }).min(1).optional(),
 });
 exports.contentValidationSchema = zod_1.z.object({
     title: zod_1.z.string().min(1, "Title required"),
     type: zod_1.z.enum(["Video", "Document", "Text", "Image"]),
     resource: zod_1.z.string().min(1, "Required"),
-    order: zod_1.z.number({ coerce: true }).min(-1).optional().default(-1),
+    order: zod_1.z.number({ coerce: true }).min(1).optional()
 });
 exports.attemptValidationSchema = zod_1.z.object({
     questions: zod_1.z.array(zod_1.z.object({

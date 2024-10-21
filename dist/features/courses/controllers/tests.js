@@ -60,7 +60,7 @@ const addTest = (req, res, next) => __awaiter(void 0, void 0, void 0, function* 
         const user = req.user;
         if (!validation.success)
             throw new exceprions_1.APIException(400, validation.error.format());
-        const { questions, title } = validation.data;
+        const { questions, title, order } = validation.data;
         // Create Test, Questions, and Choices in a single Prisma statement
         const course = yield models_1.CourseModel.update(Object.assign({ where: {
                 id: courseId,
@@ -77,6 +77,7 @@ const addTest = (req, res, next) => __awaiter(void 0, void 0, void 0, function* 
                     ? undefined
                     : {
                         create: {
+                            order: order !== null && order !== void 0 ? order : (yield models_1.TestModel.count({ where: { courseId } })) + 1,
                             title,
                             questions: {
                                 create: questions.map(({ question, choices }) => ({
@@ -99,6 +100,7 @@ const addTest = (req, res, next) => __awaiter(void 0, void 0, void 0, function* 
                             data: {
                                 tests: {
                                     create: {
+                                        order: order !== null && order !== void 0 ? order : (yield models_1.TestModel.count({ where: { moduleId } })) + 1,
                                         title,
                                         questions: {
                                             create: questions.map(({ question, choices }) => ({
@@ -135,7 +137,7 @@ const updateTest = (req, res, next) => __awaiter(void 0, void 0, void 0, functio
         const user = req.user;
         if (!validation.success)
             throw new exceprions_1.APIException(400, validation.error.format());
-        const { title } = validation.data;
+        const { title, questions, order } = validation.data;
         const course = yield models_1.CourseModel.update(Object.assign({ where: {
                 id: courseId,
                 instructorId: user.profile.instructor.id,
@@ -164,6 +166,7 @@ const updateTest = (req, res, next) => __awaiter(void 0, void 0, void 0, functio
                             where: { id: testId },
                             data: {
                                 title,
+                                order,
                             },
                         },
                     },
@@ -175,7 +178,7 @@ const updateTest = (req, res, next) => __awaiter(void 0, void 0, void 0, functio
                                 tests: {
                                     update: {
                                         where: { id: testId },
-                                        data: { title },
+                                        data: { title, order },
                                     },
                                 },
                             },

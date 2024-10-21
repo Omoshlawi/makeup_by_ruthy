@@ -15,7 +15,7 @@ const exceprions_1 = require("../../../shared/exceprions");
 const models_1 = require("../models");
 const db_1 = require("../../../services/db");
 const addModuleContent = (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
-    var _a;
+    var _a, _b;
     try {
         const user = req.user;
         const courseId = req.params.courseId;
@@ -40,12 +40,12 @@ const addModuleContent = (req, res, next) => __awaiter(void 0, void 0, void 0, f
                         where: { id: moduleId },
                         data: {
                             content: {
-                                create: validation.data,
+                                create: Object.assign(Object.assign({}, validation.data), { order: (_a = validation.data.order) !== null && _a !== void 0 ? _a : (yield models_1.ContentModel.count({ where: { moduleId } })) + 1 }),
                             },
                         },
                     },
                 },
-            } }, (0, db_1.getFileds)((_a = req.query.v) !== null && _a !== void 0 ? _a : "")));
+            } }, (0, db_1.getFileds)((_b = req.query.v) !== null && _b !== void 0 ? _b : "")));
         return res.json(course);
     }
     catch (error) {

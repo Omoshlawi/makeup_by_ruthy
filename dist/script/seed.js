@@ -12,14 +12,12 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.seedStudents = exports.seedInstructors = void 0;
+exports.seedTopics = exports.seedStudents = exports.seedInstructors = void 0;
 const db_1 = __importDefault(require("../services/db"));
-const faker_1 = require("@faker-js/faker");
-const path_1 = __importDefault(require("path"));
-const fs_1 = __importDefault(require("fs"));
 const helpers_1 = require("../utils/helpers");
-const models_1 = require("../features/courses/models");
-const models_2 = require("../features/students/models");
+const faker_1 = require("@faker-js/faker");
+const fs_1 = __importDefault(require("fs"));
+const path_1 = __importDefault(require("path"));
 // Define the directory path
 const mediaDir = path_1.default.join(process.cwd(), "media", "courses");
 // Helper function to get a list of files with specified extensions
@@ -47,7 +45,8 @@ const getImage = () => {
     return `courses/${getRandomItem(images)}`;
 };
 const seedInstructors = (instructorsCount) => __awaiter(void 0, void 0, void 0, function* () {
-    for (let index = 0; index < instructorsCount; index++) {
+    const start = yield db_1.default.instructor.count();
+    for (let index = start; index < instructorsCount; index++) {
         console.log("[*]Creating provider ", index + 1);
         yield db_1.default.instructor.create({
             data: {
@@ -57,7 +56,24 @@ const seedInstructors = (instructorsCount) => __awaiter(void 0, void 0, void 0, 
                         email: `tutor${index}@gmail.com`,
                         phoneNumber: `${faker_1.faker.phone.number()}-${index}`,
                         avatarUrl: getImage(),
-                        bio: faker_1.faker.person.bio(),
+                        bio: JSON.stringify([
+                            { insert: "Bio", attributes: { bold: true } },
+                            { insert: faker_1.faker.person.bio() },
+                            { insert: "\n\n" },
+                            {
+                                insert: "Topic one is all about testing the text input making sure everything is in place",
+                                attributes: { italic: true },
+                            },
+                            { insert: "\n\nKindly do the following\nlaurent ouma" },
+                            { insert: "\n", attributes: { list: "unchecked" } },
+                            { insert: "Jeff jakoyugi" },
+                            { insert: "\n", attributes: { list: "unchecked" } },
+                            { insert: "Saly Angienda" },
+                            { insert: "\n", attributes: { list: "checked" } },
+                            {
+                                insert: "\n\nAn updated version hoes here, this is incredible dude bt you gave it you best short... That more than enough for thankz\n",
+                            },
+                        ]),
                         gender: faker_1.faker.helpers.arrayElement(["Male", "Female", "Unknown"]),
                         name: faker_1.faker.person.fullName(),
                         user: {
@@ -82,7 +98,7 @@ const seedInstructors = (instructorsCount) => __awaiter(void 0, void 0, void 0, 
                             previewVideo: { url: getVideo(), source: "file" },
                             price: faker_1.faker.number.float({ min: 1000, max: 150000 }),
                             thumbnail: getImage(),
-                            timeToComplete: faker_1.faker.number.float({ min: 15, max: 36000 }),
+                            timeToComplete: faker_1.faker.number.float({ min: 15, max: 14400 - 1 }),
                             title: `${faker_1.faker.company.name()} ${i1}`,
                             approved: faker_1.faker.helpers.arrayElement([true, false]),
                             averageRating: faker_1.faker.number.float({
@@ -109,11 +125,13 @@ const seedInstructors = (instructorsCount) => __awaiter(void 0, void 0, void 0, 
                                     console.log(`[*]Creating Course ${i1} test ${i2} for instructor ${index}`);
                                     return {
                                         title: `${faker_1.faker.lorem.words(3)} ${i2}`,
+                                        order: i2 + 1,
                                         questions: {
                                             create: Array.from({ length: 10 }).map((_, i3) => {
                                                 console.log(`[*]Creating Course ${i1} test ${i2} question ${i3} for instructor ${index}`);
                                                 return {
                                                     question: `${faker_1.faker.lorem.sentence()} ${i3}`,
+                                                    order: i3 + 1,
                                                     choices: {
                                                         create: Array.from({ length: 10 }).map((_, i4) => {
                                                             console.log(`[*]Creating Course ${i1} test ${i2} question ${i3} choice ${i4} for instructor ${index}`);
@@ -133,14 +151,48 @@ const seedInstructors = (instructorsCount) => __awaiter(void 0, void 0, void 0, 
                                 }),
                             },
                             status: faker_1.faker.helpers.arrayElement(["Published", "Draft"]),
-                            overview: faker_1.faker.lorem.paragraphs(),
+                            overview: JSON.stringify([
+                                { insert: "Course Overview", attributes: { bold: true } },
+                                { insert: faker_1.faker.lorem.paragraphs() },
+                                { insert: "\n\n" },
+                                {
+                                    insert: "Topic one is all about testing the text input making sure everything is in place",
+                                    attributes: { italic: true },
+                                },
+                                { insert: "\n\nKindly do the following\nlaurent ouma" },
+                                { insert: "\n", attributes: { list: "unchecked" } },
+                                { insert: "Jeff jakoyugi" },
+                                { insert: "\n", attributes: { list: "unchecked" } },
+                                { insert: "Saly Angienda" },
+                                { insert: "\n", attributes: { list: "checked" } },
+                                {
+                                    insert: "\n\nAn updated version hoes here, this is incredible dude bt you gave it you best short... That more than enough for thankz\n",
+                                },
+                            ]),
                             modules: {
                                 create: Array.from({ length: 10 }).map((_, i5) => {
                                     console.log(`[*]Creating Course ${i1} module ${i5} for instructor ${index}`);
                                     return {
                                         title: `${faker_1.faker.lorem.words(3)} ${i5}`,
-                                        overview: faker_1.faker.lorem.paragraph(),
-                                        order: 1,
+                                        overview: JSON.stringify([
+                                            { insert: "Module Overview", attributes: { bold: true } },
+                                            { insert: faker_1.faker.lorem.paragraphs() },
+                                            { insert: "\n\n" },
+                                            {
+                                                insert: "Topic one is all about testing the text input making sure everything is in place",
+                                                attributes: { italic: true },
+                                            },
+                                            { insert: "\n\nKindly do the following\nlaurent ouma" },
+                                            { insert: "\n", attributes: { list: "unchecked" } },
+                                            { insert: "Jeff jakoyugi" },
+                                            { insert: "\n", attributes: { list: "unchecked" } },
+                                            { insert: "Saly Angienda" },
+                                            { insert: "\n", attributes: { list: "checked" } },
+                                            {
+                                                insert: "\n\nAn updated version hoes here, this is incredible dude bt you gave it you best short... That more than enough for thankz\n",
+                                            },
+                                        ]),
+                                        order: i5 + 1,
                                         content: {
                                             create: Array.from({ length: 10 }).map((_, i6) => {
                                                 console.log(`[*]Creating Course ${i1} module ${i5} content ${i6} for instructor ${index}`);
@@ -158,7 +210,7 @@ const seedInstructors = (instructorsCount) => __awaiter(void 0, void 0, void 0, 
                                                             : type === "Text"
                                                                 ? faker_1.faker.lorem.paragraphs(5)
                                                                 : "courses/makeup-by-ruthie-1.0.0-1724739532118-240826-plso-update-on-the-kuppet-nationwide-strike-01.pdf", //HERE
-                                                    order: 1,
+                                                    order: i6 + 1,
                                                     title: `${faker_1.faker.lorem.words(2)} ${i6}`,
                                                     type: type,
                                                 };
@@ -177,7 +229,8 @@ const seedInstructors = (instructorsCount) => __awaiter(void 0, void 0, void 0, 
 exports.seedInstructors = seedInstructors;
 const seedStudents = (studentsCount) => __awaiter(void 0, void 0, void 0, function* () {
     const enrollments = 10;
-    for (let index = 0; index < studentsCount; index++) {
+    const start = yield db_1.default.student.count();
+    for (let index = start; index < studentsCount; index++) {
         console.log("[*]Creating student ", index + 1);
         const student = yield db_1.default.student.create({
             data: {
@@ -191,7 +244,24 @@ const seedStudents = (studentsCount) => __awaiter(void 0, void 0, void 0, functi
                         email: `stude${index}@gmail.com`,
                         phoneNumber: `${faker_1.faker.phone.number()}-${index}`,
                         avatarUrl: getImage(),
-                        bio: faker_1.faker.person.bio(),
+                        bio: JSON.stringify([
+                            { insert: "Bio", attributes: { bold: true } },
+                            { insert: faker_1.faker.person.bio() },
+                            { insert: "\n\n" },
+                            {
+                                insert: "Topic one is all about testing the text input making sure everything is in place",
+                                attributes: { italic: true },
+                            },
+                            { insert: "\n\nKindly do the following\nlaurent ouma" },
+                            { insert: "\n", attributes: { list: "unchecked" } },
+                            { insert: "Jeff jakoyugi" },
+                            { insert: "\n", attributes: { list: "unchecked" } },
+                            { insert: "Saly Angienda" },
+                            { insert: "\n", attributes: { list: "checked" } },
+                            {
+                                insert: "\n\nAn updated version hoes here, this is incredible dude bt you gave it you best short... That more than enough for thankz\n",
+                            },
+                        ]),
                         gender: faker_1.faker.helpers.arrayElement(["Male", "Female", "Unknown"]),
                         name: faker_1.faker.person.fullName(),
                         user: {
@@ -208,7 +278,7 @@ const seedStudents = (studentsCount) => __awaiter(void 0, void 0, void 0, functi
         });
         console.log(`[*]Enroll student ${index} to ${enrollments} courses`);
         for (let enrollmentIndex = 0; enrollmentIndex < enrollments; enrollmentIndex++) {
-            const randomCourse = yield models_1.CourseModel.findFirst({
+            const randomCourse = yield db_1.default.course.findFirst({
                 where: {
                     approved: true,
                     status: "Published",
@@ -222,7 +292,7 @@ const seedStudents = (studentsCount) => __awaiter(void 0, void 0, void 0, functi
             if (!randomCourse)
                 continue;
             console.log(`[${enrollmentIndex}]Enrolling student ${index} to course ${randomCourse === null || randomCourse === void 0 ? void 0 : randomCourse.title}`);
-            yield models_2.EnrollmentModel.create({
+            yield db_1.default.enrollment.create({
                 data: {
                     studentId: student.id,
                     courseId: randomCourse.id,
@@ -244,3 +314,30 @@ const seedStudents = (studentsCount) => __awaiter(void 0, void 0, void 0, functi
     }
 });
 exports.seedStudents = seedStudents;
+const seedTopics = (topicsCount) => __awaiter(void 0, void 0, void 0, function* () {
+    yield Promise.all(Array.from({ length: topicsCount }).map((_, index) => db_1.default.topic.create({
+        data: {
+            name: faker_1.faker.company.name(),
+            thumbnail: getImage(),
+            overview: JSON.stringify([
+                { insert: "Topic Overview", attributes: { bold: true } },
+                { insert: faker_1.faker.lorem.paragraphs(3) },
+                { insert: "\n\n" },
+                {
+                    insert: "Topic one is all about testing the text input making sure everything is in place",
+                    attributes: { italic: true },
+                },
+                { insert: "\n\nKindly do the following\nlaurent ouma" },
+                { insert: "\n", attributes: { list: "unchecked" } },
+                { insert: "Jeff jakoyugi" },
+                { insert: "\n", attributes: { list: "unchecked" } },
+                { insert: "Saly Angienda" },
+                { insert: "\n", attributes: { list: "checked" } },
+                {
+                    insert: "\n\nAn updated version hoes here, this is incredible dude bt you gave it you best short... That more than enough for thankz\n",
+                },
+            ]),
+        },
+    })));
+});
+exports.seedTopics = seedTopics;

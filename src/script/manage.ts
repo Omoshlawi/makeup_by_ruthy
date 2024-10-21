@@ -2,7 +2,7 @@ import db from "@/services/db";
 import { hashPassword } from "@/utils/helpers";
 import { log } from "console";
 import * as readline from "readline";
-import { seedInstructors, seedStudents } from "./seed";
+import { seedInstructors, seedStudents, seedTopics } from "./seed";
 
 // Create an interface for readline
 const rl = readline.createInterface({
@@ -74,7 +74,7 @@ const loggeErrorMessage = () => {
   console.log("Invalid Command");
   console.log("Supported Commands");
   console.log(
-    "1. createSuperUser\n2. deleteUser\n3. seed instructors <number of instructors>\n4. seed students <number of students>"
+    "1. createSuperUser\n2. deleteUser\n3. seed instructors <number of instructors>\n4. seed students <number of students>\n5.seed topics <number of topics>"
   );
 };
 
@@ -102,6 +102,10 @@ const main = async () => {
       console.log("[*]Seeding students");
       await seedStudents(parseInt(args[2]));
       console.log("[*]Students seeding succesfull");
+    } else if (args[1] === "topics") {
+      console.log("[*]Seeding topics");
+      await seedTopics(parseInt(args[2]));
+      console.log("[*]Topics seeding succesfull");
     } else {
       loggeErrorMessage();
     }

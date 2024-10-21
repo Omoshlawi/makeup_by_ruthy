@@ -224,6 +224,7 @@ CREATE TABLE "Payment" (
 CREATE TABLE "Test" (
     "id" TEXT NOT NULL,
     "title" TEXT NOT NULL,
+    "order" INTEGER NOT NULL DEFAULT 0,
     "courseId" TEXT,
     "moduleId" TEXT,
     "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
@@ -236,6 +237,7 @@ CREATE TABLE "Test" (
 CREATE TABLE "TestQuestion" (
     "id" TEXT NOT NULL,
     "testId" TEXT NOT NULL,
+    "order" INTEGER NOT NULL DEFAULT 0,
     "question" TEXT NOT NULL,
     "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "updatedAt" TIMESTAMP(3) NOT NULL,
