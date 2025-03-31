@@ -50,6 +50,8 @@
     "@types/node": "^22.2.0",
     "@types/semver": "^7.5.6",
     "morgan": "^1.10.0",
+    "patch-package": "^8.0.0",
+    "postinstall-postinstall": "^2.1.0",
     "prisma": "^5.18.0",
     "ts-node-dev": "^2.0.0",
     "tsc-alias": "^1.8.10",

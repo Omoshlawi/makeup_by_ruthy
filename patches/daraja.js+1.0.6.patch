@@ -1,0 +1,10 @@
+diff --git a/node_modules/daraja.js/dist/api/b2c.d.ts b/node_modules/daraja.js/dist/api/b2c.d.ts
+index 442a25d..2b84b54 100644
+--- a/node_modules/daraja.js/dist/api/b2c.d.ts
++++ b/node_modules/daraja.js/dist/api/b2c.d.ts
+@@ -1,4 +1,4 @@
+-import { MpesaResponse } from "wrappers";
++import { MpesaResponse } from "daraja.js/dist/wrappers";
+ import { B2CResponseInterface } from "../models/interfaces";
+ import { _BuilderConfig } from "../utils";
+ export declare class BusinessToCustomer {
