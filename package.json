@@ -7,7 +7,8 @@
     "build": "tsc && tsc-alias",
     "start": "node dist/index.js",
     "build:seed": "tsc --project tsconfig.json && tsc-alias",
-    "seed": "npm run build:seed && node dist/scripts/seed.js" 
+    "db:seed": "npm run build:seed && node dist/scripts/seed.js",
+    "db:migrate": "npx prisma migrate dev"
   },
   "author": "Laurent Ouma",
   "dependencies": {
