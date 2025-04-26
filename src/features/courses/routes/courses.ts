@@ -6,11 +6,12 @@ import { validateUUIDPathParam } from "@/middlewares/validators";
 import { Router } from "express";
 import {
   addCourse,
+  aproveCourse,
   deleteCourse,
   getCourse,
   getCourses,
   getMyCourses,
-  toggleCourseApproval,
+  rejectCourse,
   updateCourse,
 } from "../controllers/courses";
 import modulesRouter from "./modules";
@@ -72,9 +73,15 @@ router.get(
 );
 
 router.get(
-  "/:courseId/approval/:action",
+  "/:courseId/approve",
   [validateUUIDPathParam("courseId"), authenticate, requireAdmin],
-  toggleCourseApproval
+  aproveCourse
+);
+
+router.post(
+  "/:courseId/reject",
+  [validateUUIDPathParam("courseId"), authenticate, requireAdmin],
+  rejectCourse
 );
 
 export default router;

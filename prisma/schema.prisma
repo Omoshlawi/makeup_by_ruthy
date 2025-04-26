@@ -3,9 +3,9 @@ generator client {
 }
 
 datasource db {
-  provider  = "postgresql"
-  url       = env("DATABASE_URL")
-  directUrl = env("DIRECT_URL") // used by superbase for migration
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+  // directUrl = env("DIRECT_URL") // used by superbase for migration
 }
 
 model User {
@@ -116,6 +116,7 @@ model Course {
   topics         CourseTopic[]
   tests          Test[]
   averageRating  Float         @default(0.0) //caches avg rating after every addition of review
+  rejectReason   String? //Reason for rejection
 }
 
 model CourseTopic {
@@ -169,6 +170,7 @@ model CourseReview {
   active       Boolean    @default(true)
   createdAt    DateTime   @default(now())
   updatedAt    DateTime   @updatedAt
+  rejectReason String? //Reason for rejection
 }
 
 model Enrollment {

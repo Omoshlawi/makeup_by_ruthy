@@ -1,36 +1,14 @@
-import { NextFunction, Request, Response } from "express";
-import { courseInclude, CourseModel } from "../models";
+import { getFileds, paginate } from "@/services/db";
 import { APIException } from "@/shared/exceprions";
+import { Instructor, Profile, User } from "@prisma/client";
+import { NextFunction, Request, Response } from "express";
+import { CourseModel } from "../models";
 import {
+  courseRejectionSchema,
   courseSearchSchema,
   courseValidationSchema,
   myCourseSearchSchema,
 } from "../schema";
-import { Instructor, Profile, User } from "@prisma/client";
-import { getFileds, paginate, parseCustomRepresentation } from "@/services/db";
-
-export const toggleCourseApproval = async (
-  req: Request,
-  res: Response,
-  next: NextFunction
-) => {
-  try {
-    const courseId = req.params.courseId;
-    const action = req.params.action as any;
-
-    if (!["approve", "disapprove"].includes(action))
-      throw new APIException(404, { detail: "Not found" });
-
-    await CourseModel.update({
-      where: { id: courseId, approved: action !== "approve" },
-      data: { approved: action === "approve" },
-    });
-
-    return res.json({ detail: `Course ${action} successfull!` });
-  } catch (error) {
-    next(error);
-  }
-};
 
 export const getCourses = async (
   req: Request,
@@ -82,7 +60,6 @@ export const getCourses = async (
                     overview: {
                       contains: search,
                       mode: "insensitive",
-
                     },
                   },
                   {
@@ -158,14 +135,12 @@ export const getMyCourses = async (
                     title: {
                       contains: search,
                       mode: "insensitive",
-
                     },
                   },
                   {
                     overview: {
                       contains: search,
                       mode: "insensitive",
-
                     },
                   },
                   {
@@ -297,6 +272,46 @@ export const deleteCourse = async (
       ...getFileds((req.query.v as any) ?? ""),
     });
     return res.json(topic);
+  } catch (error) {
+    next(error);
+  }
+};
+
+export const aproveCourse = async (
+  req: Request,
+  res: Response,
+  next: NextFunction
+) => {
+  try {
+    const courseId = req.params.courseId;
+    const results = await CourseModel.update({
+      where: { voided: false, id: courseId },
+      data: { approved: true },
+      ...getFileds((req.query.v as any) ?? ""),
+    });
+    return res.json({ results });
+  } catch (error) {
+    next(error);
+  }
+};
+
+export const rejectCourse = async (
+  req: Request,
+  res: Response,
+  next: NextFunction
+) => {
+  try {
+    const courseId = req.params.courseId;
+    const validation = await courseRejectionSchema.safeParseAsync(req.body);
+    if (!validation.success)
+      throw new APIException(400, validation.error.format());
+    const { reason } = validation.data;
+    const results = await CourseModel.update({
+      where: { voided: false, id: courseId, rejectReason: reason },
+      data: { approved: false },
+      ...getFileds((req.query.v as any) ?? ""),
+    });
+    return res.json({ results });
   } catch (error) {
     next(error);
   }

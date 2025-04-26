@@ -80,6 +80,10 @@ export const courseValidationSchema = z.object({
   tags: z.string(),
 });
 
+export const courseRejectionSchema = z.object({
+  reason: z.string().min(1, "Reason required"),
+});
+
 export const moduleValidationSchema = z.object({
   title: z.string().min(1, "Title required"),
   overview: z.string().min(10, "Overview too short").optional(),
@@ -90,7 +94,7 @@ export const contentValidationSchema = z.object({
   title: z.string().min(1, "Title required"),
   type: z.enum(["Video", "Document", "Text", "Image"]),
   resource: z.string().min(1, "Required"),
-  order: z.number({ coerce: true }).min(1).optional()
+  order: z.number({ coerce: true }).min(1).optional(),
 });
 
 export const attemptValidationSchema = z.object({
