@@ -285,7 +285,7 @@ export const aproveCourse = async (
   try {
     const courseId = req.params.courseId;
     const results = await CourseModel.update({
-      where: { voided: false, id: courseId },
+      where: { id: courseId },
       data: { approved: true },
       ...getFileds((req.query.v as any) ?? ""),
     });
@@ -307,7 +307,7 @@ export const rejectCourse = async (
       throw new APIException(400, validation.error.format());
     const { reason } = validation.data;
     const results = await CourseModel.update({
-      where: { voided: false, id: courseId, rejectReason: reason },
+      where: { id: courseId, rejectReason: reason },
       data: { approved: false },
       ...getFileds((req.query.v as any) ?? ""),
     });
